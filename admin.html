@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedVocab — Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f0f4ff;
+            --text: #1e1b4b;
+            --gray: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            height: 56px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar h1 { font-size: 18px; font-weight: 800; color: var(--primary); }
+        .navbar .badge {
+            background: #fee2e2;
+            color: #991b1b;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+        .navbar-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+        .navbar-right a {
+            font-size: 13px;
+            color: var(--gray);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .navbar-right a:hover { color: var(--danger); }
+
+        /* ===== TABS ===== */
+        .tabs {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-btn:hover { color: var(--primary); }
+
+        /* ===== CONTENT ===== */
+        .content { padding: 24px; max-width: 1100px; margin: 0 auto; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(79,70,229,0.08);
+            margin-bottom: 16px;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .card-header h2 { font-size: 16px; font-weight: 700; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-ghost { background: #f3f4f6; color: var(--text); }
+        .btn-ghost:hover { background: #e5e7eb; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+        /* ===== TABLE ===== */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f9fafb;
+            color: var(--gray);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+
+        /* ===== QUESTION GRID ===== */
+        .question-grid {
+            display: grid;
+            grid-template-columns: 180px 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .qg-header {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .qg-chapter-label {
+            background: #f3f4f6;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        .qg-cell {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            min-height: 72px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .qg-cell:hover { border-color: var(--primary); background: #f5f3ff; }
+        .qg-cell.has-question {
+            border: 2px solid var(--success);
+            background: #f0fdf4;
+        }
+        .qg-cell.has-question:hover { background: #dcfce7; }
+        .qg-cell .qg-status { font-size: 18px; }
+        .qg-cell .qg-label { font-size: 11px; font-weight: 600; color: var(--gray); }
+        .qg-cell.has-question .qg-label { color: var(--success); }
+
+        /* ===== PROGRESS BADGES ===== */
+        .progress-days {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .day-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .day-done { background: #d1fae5; color: #065f46; }
+        .day-pending { background: #f3f4f6; color: var(--gray); }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+        .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+        /* ===== FORM ===== */
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.15s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus { border-color: var(--primary); }
+        .form-group textarea { resize: vertical; min-height: 64px; }
+
+        /* ===== STAT BOXES ===== */
+        .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .stat-box {
+            flex: 1;
+            min-width: 100px;
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-box .value { font-size: 28px; font-weight: 800; color: var(--primary); }
+        .stat-box .label { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+        /* ===== LOADING ===== */
+        .loading-row td { text-align: center; color: var(--gray); padding: 32px; }
+
+        /* ===== LOGIN SCREEN ===== */
+        #login-screen {
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 4px 24px rgba(79,70,229,0.12);
+            text-align: center;
+        }
+        .login-card h1 { font-size: 24px; color: var(--primary); margin: 12px 0 4px; }
+        .login-card p { color: var(--gray); font-size: 13px; margin-bottom: 24px; }
+        .login-card input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 12px;
+            text-align: center;
+            letter-spacing: 4px;
+        }
+        .login-card input:focus { border-color: var(--primary); }
+        .login-card .btn { width: 100%; padding: 12px; font-size: 15px; }
+        .login-error { color: var(--danger); font-size: 13px; margin-top: 8px; }
+
+        /* ===== SECTION DIVIDER ===== */
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 0 6px;
+            border-top: 1px solid var(--border);
+            margin: 16px 0 10px;
+        }
+        .section-label:first-child { border-top: none; margin-top: 0; }
+
+        /* ===== EXPLANATION BOXES ===== */
+        .exp-box {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+        .exp-box-correct { background: #f0fdf4; border-left: 3px solid var(--success); }
+        .exp-box-wrong { background: #fff7f7; border-left: 3px solid #fca5a5; }
+        .exp-box label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        #app { display: none; }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .question-grid {
+                grid-template-columns: 120px 1fr 1fr 1fr;
+            }
+            .content { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
+    <div class="login-card">
+        <div style="font-size:48px">🔐</div>
+        <h1>Admin Panel</h1>
+        <p>MedVocab — เฉพาะผู้ดูแลระบบ</p>
+        <input type="password" id="admin-pass" placeholder="รหัสผ่าน" />
+        <button class="btn btn-primary" onclick="adminLogin()">เข้าสู่ระบบ</button>
+        <div class="login-error" id="login-error"></div>
+        <div style="margin-top:16px">
+            <a href="index.html" style="font-size:13px; color:var(--gray); text-decoration:none">
+                ← กลับหน้าหลัก
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app">
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>🩺 MedVocab</h1>
+        <span class="badge">ADMIN</span>
+        <div class="navbar-right">
+            <a href="index.html" style="font-size:13px; color:var(--gray)">← หน้าหลัก</a>
+            <a onclick="adminLogout()">ออกจากระบบ</a>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="chapters" onclick="switchTab('chapters', this)">📖 บท</button>
+        <button class="tab-btn" data-tab="questions" onclick="switchTab('questions', this)">❓ โจทย์</button>
+        <button class="tab-btn" data-tab="students" onclick="switchTab('students', this)">👥 นิสิต</button>
+        <button class="tab-btn" data-tab="data" onclick="switchTab('data', this)">📊 ข้อมูลวิจัย</button>
+        <button class="tab-btn" data-tab="reset" onclick="switchTab('reset', this)">⚙️ Reset ระบบ</button>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+        <!-- ===== TAB: CHAPTERS ===== -->
+        <div id="tab-chapters" class="tab-panel active">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>📖 บทเรียนทั้งหมด</h2>
+                        <p style="font-size:12px; color:var(--gray); margin-top:2px">กำหนดบทที่จะใช้ในการสอบ โดยแต่ละบทจะมีโจทย์ 1 ข้อต่อวันทำแบบทดสอบ</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openChapterModal()">+ เพิ่มบท</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>บทที่</th>
+                                <th>ชื่อบท</th>
+                                <th>คำอธิบาย</th>
+                                <th>โจทย์ที่มี</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chapters-table-body">
+                            <tr class="loading-row"><td colspan="5">กำลังโหลด...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: QUESTIONS ===== -->
+        <div id="tab-questions" class="tab-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>❓ ตารางโจทย์ทั้งหมด</h2>
+                        <p style="font-size:12px; color:var(--gray); margin-top:2px">
+                            แต่ละบทมีโจทย์ 3 ข้อสำหรับ วันที่ 1 / วันที่ 3 / วันที่ 7 (Post-test ใช้โจทย์จาก 3 วันนี้)
+                        </p>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" onclick="loadQuestions()">🔄 รีเฟรช</button>
+                </div>
+
+                <!-- Grid header -->
+                <div class="question-grid" style="margin-bottom:8px">
+                    <div class="qg-header" style="background:transparent; color:var(--gray); text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.5px">บท</div>
+                    <div class="qg-header" style="background:#dbeafe; color:#1d4ed8">วันที่ 1</div>
+                    <div class="qg-header" style="background:#fef3c7; color:#92400e">วันที่ 3</div>
+                    <div class="qg-header" style="background:#d1fae5; color:#065f46">วันที่ 7</div>
+                </div>
+
+                <!-- Grid rows (dynamic) -->
+                <div id="questions-grid">
+                    <p style="color:var(--gray); text-align:center; padding:24px; font-size:13px">กำลังโหลด...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: STUDENTS ===== -->
+        <div id="tab-students" class="tab-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>👥 รายชื่อนิสิต</h2>
+                        <p style="font-size:12px; color:var(--gray); margin-top:2px">รหัสนิสิตเลขคี่เท่านั้น (67200001, 67200003 ... 67200071)</p>
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap">
+                        <button class="btn btn-ghost btn-sm" onclick="loadStudents()">🔄 รีเฟรช</button>
+                        <button class="btn btn-primary" onclick="openStudentModal()">+ เพิ่มนิสิต</button>
+                        <button class="btn btn-ghost" onclick="bulkAddStudents()">📋 เพิ่มทั้งหมด 36 คน</button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>รหัสนิสิต</th>
+                                <th>ชื่อ</th>
+                                <th>เริ่มเรียน</th>
+                                <th>ความคืบหน้า</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table-body">
+                            <tr class="loading-row"><td colspan="5">กำลังโหลด...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: DATA ===== -->
+        <div id="tab-data" class="tab-panel">
+            <div class="stats-row" id="stats-row">
+                <div class="stat-box"><div class="value" id="stat-students">—</div><div class="label">นิสิตทั้งหมด</div></div>
+                <div class="stat-box"><div class="value" id="stat-questions">—</div><div class="label">โจทย์ทั้งหมด</div></div>
+                <div class="stat-box"><div class="value" id="stat-sessions">—</div><div class="label">คำตอบทั้งหมด</div></div>
+                <div class="stat-box"><div class="value" id="stat-accuracy">—</div><div class="label">ความแม่นยำเฉลี่ย</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>📥 Export ข้อมูลสำหรับวิจัย</h2>
+                </div>
+                <p style="margin-bottom:16px; font-size:13px; color:var(--gray)">
+                    ดาวน์โหลดข้อมูลดิบทุก session เป็น CSV สำหรับวิเคราะห์ใน Excel หรือ SPSS<br>
+                    คอลัมน์: student_id, student_name, session_day, question_id, chapter, is_posttest, is_correct, response_ms, answered_at
+                </p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap">
+                    <button class="btn btn-success" onclick="exportCSV()">⬇️ Export ทั้งหมด</button>
+                    <button class="btn btn-ghost" onclick="exportCSV(1)">⬇️ วันที่ 1 เท่านั้น</button>
+                    <button class="btn btn-ghost" onclick="exportCSV(3)">⬇️ วันที่ 3 เท่านั้น</button>
+                    <button class="btn btn-ghost" onclick="exportCSV(7)">⬇️ วันที่ 7 เท่านั้น</button>
+                    <button class="btn btn-ghost" onclick="exportCSV(30)">⬇️ Post-test เท่านั้น</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>📋 ประวัติการตอบล่าสุด</h2>
+                    <button class="btn btn-ghost btn-sm" onclick="loadRecentLogs()">🔄 รีเฟรช</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>รหัสนิสิต</th>
+                                <th>วันที่สอบ</th>
+                                <th>โจทย์</th>
+                                <th>ถูก/ผิด</th>
+                                <th>เวลา (ms)</th>
+                                <th>เวลาที่ตอบ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table-body">
+                            <tr class="loading-row"><td colspan="6">กดรีเฟรชเพื่อโหลด</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: RESET ===== -->
+        <div id="tab-reset" class="tab-panel">
+
+            <!-- Reset Progress รายคน -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>🔄 Reset ความคืบหน้ารายคน</h2>
+                        <p style="margin-top:4px; font-size:13px">ล้าง study_start_date และ completed_days ของนิสิตคนที่เลือก — นิสิตจะเริ่มวันที่ 1 ใหม่</p>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:12px">
+                    <input type="text" id="reset-student-id-input" placeholder="กรอกรหัสนิสิต เช่น 67200001"
+                        style="flex:1; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; outline:none" />
+                    <button class="btn btn-warning" onclick="resetOneStudent()">Reset คนนี้</button>
+                </div>
+            </div>
+
+            <!-- Reset Progress ทั้งหมด -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>🔄 Reset ความคืบหน้าทุกคน</h2>
+                        <p style="margin-top:4px; font-size:13px">ล้าง study_start_date และ completed_days ของทุกคน — ทุกคนเริ่มใหม่จากวันที่ 1</p>
+                    </div>
+                </div>
+                <button class="btn btn-warning" onclick="resetAllProgress()">🔄 Reset ทุกคน</button>
+            </div>
+
+            <!-- ล้าง Session Logs -->
+            <div class="card" style="border: 2px solid #fecaca">
+                <div class="card-header">
+                    <div>
+                        <h2 style="color:var(--danger)">🗑️ ล้างข้อมูล Session Logs</h2>
+                        <p style="margin-top:4px; font-size:13px">ลบประวัติการตอบทั้งหมด — ใช้เมื่อต้องการเริ่มเก็บข้อมูลวิจัยใหม่</p>
+                    </div>
+                </div>
+                <p style="font-size:13px; color:var(--danger); margin-bottom:12px; font-weight:600">
+                    ⚠️ ควร Export CSV ก่อนกดปุ่มนี้เสมอ
+                </p>
+                <button class="btn btn-danger" onclick="confirmReset('logs')">🗑️ ล้าง Session Logs ทั้งหมด</button>
+            </div>
+
+            <!-- Full Reset -->
+            <div class="card" style="border: 2px solid #991b1b; background:#fff5f5">
+                <div class="card-header">
+                    <div>
+                        <h2 style="color:#991b1b">💥 Full Reset — เริ่มวิจัยใหม่ทั้งหมด</h2>
+                        <p style="margin-top:4px; font-size:13px">ล้างความคืบหน้า + Session Logs ของทุกคน ในครั้งเดียว</p>
+                    </div>
+                </div>
+                <p style="font-size:13px; color:#991b1b; margin-bottom:12px; font-weight:600">
+                    ⚠️ ใช้เฉพาะก่อนเริ่มวิจัยรอบใหม่เท่านั้น — กู้คืนไม่ได้เด็ดขาด
+                </p>
+                <button class="btn btn-danger" onclick="confirmReset('full')">💥 Full Reset ระบบทั้งหมด</button>
+            </div>
+
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /app -->
+
+<!-- ===== MODAL: CHAPTER ===== -->
+<div class="modal-overlay" id="chapter-modal">
+    <div class="modal">
+        <h3 id="chapter-modal-title">เพิ่มบทเรียน</h3>
+        <input type="hidden" id="chapter-edit-id" />
+        <div class="form-group">
+            <label>บทที่ *</label>
+            <input type="number" id="c-number" placeholder="เช่น 1" min="1" max="20" />
+        </div>
+        <div class="form-group">
+            <label>ชื่อบท *</label>
+            <input type="text" id="c-title" placeholder="เช่น Cardiovascular System" />
+        </div>
+        <div class="form-group">
+            <label>คำอธิบายบท (ไม่บังคับ)</label>
+            <textarea id="c-description" placeholder="อธิบายเนื้อหาของบทนี้..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('chapter-modal')">ยกเลิก</button>
+            <button class="btn btn-primary" onclick="saveChapter()">บันทึก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: QUESTION ===== -->
+<div class="modal-overlay" id="question-modal">
+    <div class="modal" style="max-width:640px">
+        <h3 id="question-modal-title">เพิ่มโจทย์</h3>
+        <input type="hidden" id="q-edit-id" />
+        <input type="hidden" id="q-chapter-id" />
+        <input type="hidden" id="q-quiz-day" />
+
+        <div style="background:#f0f4ff; border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:13px">
+            <strong id="q-context-label">บท — วันที่ —</strong>
+        </div>
+
+        <!-- คำถาม -->
+        <div class="form-group">
+            <label>คำถาม *</label>
+            <textarea id="q-text" placeholder="เช่น Which term refers to abnormally high blood pressure?" style="min-height:80px"></textarea>
+        </div>
+
+        <!-- ตัวเลือก -->
+        <div class="section-label">✅ ตัวเลือกที่ถูกต้อง</div>
+        <div class="exp-box exp-box-correct">
+            <div class="form-group" style="margin-bottom:8px">
+                <label>ตัวเลือกถูก *</label>
+                <input type="text" id="q-correct" placeholder="เช่น Hypertension" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>คำอธิบาย (แสดงหลังตอบ) *</label>
+                <textarea id="q-exp-correct" placeholder="เช่น Hypertension = ความดันโลหิตสูง ค่าปกติ <120/80 mmHg..."></textarea>
+            </div>
+        </div>
+
+        <!-- ตัวเลือกผิด 3 ข้อ -->
+        <div class="section-label">❌ ตัวเลือกที่ผิด 3 ข้อ</div>
+
+        <div class="exp-box exp-box-wrong">
+            <div class="form-group" style="margin-bottom:8px">
+                <label>ตัวเลือกผิดที่ 1 *</label>
+                <input type="text" id="q-wrong1" placeholder="เช่น Hypotension" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>คำอธิบาย (ว่าผิดเพราะอะไร) *</label>
+                <textarea id="q-exp-wrong1" placeholder="เช่น Hypotension = ความดันโลหิตต่ำ ตรงข้ามกับคำถาม..."></textarea>
+            </div>
+        </div>
+
+        <div class="exp-box exp-box-wrong">
+            <div class="form-group" style="margin-bottom:8px">
+                <label>ตัวเลือกผิดที่ 2 *</label>
+                <input type="text" id="q-wrong2" placeholder="เช่น Tachycardia" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>คำอธิบาย *</label>
+                <textarea id="q-exp-wrong2" placeholder="เช่น Tachycardia = หัวใจเต้นเร็วผิดปกติ ไม่เกี่ยวกับความดัน..."></textarea>
+            </div>
+        </div>
+
+        <div class="exp-box exp-box-wrong">
+            <div class="form-group" style="margin-bottom:8px">
+                <label>ตัวเลือกผิดที่ 3 *</label>
+                <input type="text" id="q-wrong3" placeholder="เช่น Bradycardia" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>คำอธิบาย *</label>
+                <textarea id="q-exp-wrong3" placeholder="เช่น Bradycardia = หัวใจเต้นช้าผิดปกติ ไม่เกี่ยวกับความดัน..."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('question-modal')">ยกเลิก</button>
+            <button class="btn btn-primary" onclick="saveQuestion()">บันทึก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: STUDENT ===== -->
+<div class="modal-overlay" id="student-modal">
+    <div class="modal">
+        <h3 id="student-modal-title">เพิ่มนิสิต</h3>
+        <input type="hidden" id="student-edit-id" />
+        <div class="form-group">
+            <label>รหัสนิสิต * (เลขคี่เท่านั้น)</label>
+            <input type="text" id="s-student-id" placeholder="เช่น 67200001" maxlength="10" />
+        </div>
+        <div class="form-group">
+            <label>ชื่อ-นามสกุล</label>
+            <input type="text" id="s-name" placeholder="เช่น สมชาย ใจดี (ไม่บังคับ)" />
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('student-modal')">ยกเลิก</button>
+            <button class="btn btn-primary" onclick="saveStudent()">บันทึก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: CONFIRM ===== -->
+<div class="modal-overlay" id="confirm-modal">
+    <div class="modal" style="max-width:360px; text-align:center">
+        <div style="font-size:40px; margin-bottom:12px">⚠️</div>
+        <h3 id="confirm-title">ยืนยันการลบ?</h3>
+        <p id="confirm-desc" style="margin-top:8px; font-size:14px; color:var(--gray)"></p>
+        <div class="modal-footer" style="justify-content:center; margin-top:20px">
+            <button class="btn btn-ghost" onclick="closeModal('confirm-modal')">ยกเลิก</button>
+            <button class="btn btn-danger" id="confirm-action-btn">ลบ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// SUPABASE CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://qftgvzsakmyugmspgqex.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_SvxKwCNAzg9PurBHRi1LUQ_4o-hBVJJ';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function adminLogin() {
+    const pass = document.getElementById('admin-pass').value.trim();
+    if (!pass) return;
+
+    const errEl = document.getElementById('login-error');
+    errEl.textContent = 'กำลังตรวจสอบ...';
+
+    try {
+        const { data: isValid } = await sb.rpc('verify_admin', {
+            p_username: 'admin',
+            p_password: pass
+        });
+
+        if (isValid) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            loadChapters();
+            loadStats();
+        } else {
+            errEl.textContent = 'รหัสผ่านไม่ถูกต้อง';
+        }
+    } catch (err) {
+        errEl.textContent = 'เกิดข้อผิดพลาด: ' + err.message;
+    }
+}
+
+function adminLogout() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('admin-pass').value = '';
+    document.getElementById('login-error').textContent = '';
+}
+
+document.getElementById('admin-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') adminLogin();
+});
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+
+    // Load data when switching tabs
+    if (name === 'questions') loadQuestions();
+    if (name === 'students') loadStudents();
+    if (name === 'data') { loadStats(); loadRecentLogs(); }
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// Click outside to close
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) overlay.classList.remove('show');
+    });
+});
+
+// ============================================================
+// CHAPTERS
+// ============================================================
+let chaptersCache = [];
+
+async function loadChapters() {
+    const tbody = document.getElementById('chapters-table-body');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="5">กำลังโหลด...</td></tr>';
+
+    const { data, error } = await sb
+        .from('chapters')
+        .select('*')
+        .order('chapter_number', { ascending: true });
+
+    if (error) {
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="5" style="color:var(--danger)">Error: ${error.message}</td></tr>`;
+        return;
+    }
+
+    chaptersCache = data || [];
+
+    // Count questions per chapter
+    const { data: qData } = await sb
+        .from('questions')
+        .select('chapter_id, quiz_day');
+
+    const qCountMap = {};
+    (qData || []).forEach(q => {
+        if (!qCountMap[q.chapter_id]) qCountMap[q.chapter_id] = [];
+        qCountMap[q.chapter_id].push(q.quiz_day);
+    });
+
+    if (!chaptersCache.length) {
+        tbody.innerHTML = '<tr class="loading-row"><td colspan="5">ยังไม่มีบท กดเพิ่มได้เลย</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = chaptersCache.map(ch => {
+        const days = qCountMap[ch.id] || [];
+        const dayBadges = [1, 3, 7].map(d =>
+            `<span class="day-badge ${days.includes(d) ? 'day-done' : 'day-pending'}">วันที่ ${d}</span>`
+        ).join('');
+        return `
+        <tr>
+            <td style="font-weight:700; font-size:20px; color:var(--primary); text-align:center">บท ${ch.chapter_number}</td>
+            <td><strong>${ch.title}</strong></td>
+            <td style="color:var(--gray); font-size:12px; max-width:200px">${ch.description || '—'}</td>
+            <td><div class="progress-days">${dayBadges}</div></td>
+            <td>
+                <button class="btn btn-ghost btn-sm" onclick='openChapterModal(${JSON.stringify(ch)})'>แก้ไข</button>
+                <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="deleteChapter('${ch.id}', '${escapeQuotes(ch.title)}')">ลบ</button>
+            </td>
+        </tr>
+        `;
+    }).join('');
+}
+
+function openChapterModal(ch = null) {
+    document.getElementById('chapter-modal-title').textContent = ch ? 'แก้ไขบท' : 'เพิ่มบทเรียน';
+    document.getElementById('chapter-edit-id').value  = ch?.id || '';
+    document.getElementById('c-number').value         = ch?.chapter_number || '';
+    document.getElementById('c-title').value          = ch?.title || '';
+    document.getElementById('c-description').value   = ch?.description || '';
+    openModal('chapter-modal');
+}
+
+async function saveChapter() {
+    const id          = document.getElementById('chapter-edit-id').value;
+    const chapter_number = parseInt(document.getElementById('c-number').value);
+    const title       = document.getElementById('c-title').value.trim();
+    const description = document.getElementById('c-description').value.trim() || null;
+
+    if (!chapter_number || !title) { alert('กรุณากรอก บทที่ และ ชื่อบท'); return; }
+
+    if (id) {
+        const { error } = await sb.from('chapters').update({ chapter_number, title, description }).eq('id', id);
+        if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+    } else {
+        const { error } = await sb.from('chapters').insert({ chapter_number, title, description });
+        if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+    }
+
+    closeModal('chapter-modal');
+    loadChapters();
+}
+
+function deleteChapter(id, title) {
+    document.getElementById('confirm-title').textContent = `ลบ "${title}"?`;
+    document.getElementById('confirm-desc').textContent  = 'โจทย์ทั้งหมดในบทนี้จะถูกลบด้วย';
+    document.getElementById('confirm-action-btn').onclick = async () => {
+        await sb.from('questions').delete().eq('chapter_id', id);
+        await sb.from('chapters').delete().eq('id', id);
+        closeModal('confirm-modal');
+        loadChapters();
+    };
+    openModal('confirm-modal');
+}
+
+// ============================================================
+// QUESTIONS
+// ============================================================
+let questionsCache = [];
+
+async function loadQuestions() {
+    const gridEl = document.getElementById('questions-grid');
+    gridEl.innerHTML = '<p style="color:var(--gray); text-align:center; padding:24px; font-size:13px">กำลังโหลด...</p>';
+
+    // Load chapters and questions in parallel
+    const [{ data: chapters }, { data: questions }] = await Promise.all([
+        sb.from('chapters').select('*').order('chapter_number'),
+        sb.from('questions').select('id, chapter_id, quiz_day, question_text')
+    ]);
+
+    chaptersCache = chapters || [];
+
+    if (!chaptersCache.length) {
+        gridEl.innerHTML = '<p style="color:var(--gray); text-align:center; padding:24px; font-size:13px">ยังไม่มีบท — ไปที่แท็บ "📖 บท" เพื่อเพิ่มก่อน</p>';
+        return;
+    }
+
+    // Build lookup: chapter_id → { day: question }
+    const qMap = {};
+    (questions || []).forEach(q => {
+        if (!qMap[q.chapter_id]) qMap[q.chapter_id] = {};
+        qMap[q.chapter_id][q.quiz_day] = q;
+    });
+
+    questionsCache = questions || [];
+
+    const rows = chaptersCache.map(ch => {
+        const cells = [1, 3, 7].map(day => {
+            const q = qMap[ch.id]?.[day];
+            if (q) {
+                return `
+                <div class="qg-cell has-question" onclick="openQuestionModal('${ch.id}', ${day}, ${JSON.stringify(q).replace(/'/g, "&#39;")})">
+                    <span class="qg-status">✅</span>
+                    <span class="qg-label">มีโจทย์แล้ว<br>กดเพื่อแก้ไข</span>
+                </div>`;
+            } else {
+                return `
+                <div class="qg-cell" onclick="openQuestionModal('${ch.id}', ${day})">
+                    <span class="qg-status">➕</span>
+                    <span class="qg-label">กดเพื่อเพิ่ม</span>
+                </div>`;
+            }
+        }).join('');
+
+        return `
+        <div class="question-grid" style="margin-bottom:8px">
+            <div class="qg-chapter-label">บท ${ch.chapter_number}<br><span style="font-weight:400; font-size:11px; color:var(--gray)">${ch.title}</span></div>
+            ${cells}
+        </div>`;
+    }).join('');
+
+    gridEl.innerHTML = rows;
+}
+
+async function openQuestionModal(chapterId, day, existingQ = null) {
+    // Find chapter info
+    const ch = chaptersCache.find(c => c.id === chapterId);
+    const dayLabels = { 1: 'วันที่ 1', 3: 'วันที่ 3', 7: 'วันที่ 7' };
+
+    document.getElementById('question-modal-title').textContent = existingQ ? 'แก้ไขโจทย์' : 'เพิ่มโจทย์';
+    document.getElementById('q-context-label').textContent = `${ch ? 'บท ' + ch.chapter_number + ' — ' + ch.title : ''} | ${dayLabels[day] || 'วันที่ ' + day}`;
+    document.getElementById('q-edit-id').value     = existingQ?.id || '';
+    document.getElementById('q-chapter-id').value  = chapterId;
+    document.getElementById('q-quiz-day').value    = day;
+
+    if (existingQ && existingQ.id) {
+        // Load full question data
+        const { data: q } = await sb.from('questions').select('*').eq('id', existingQ.id).single();
+        if (q) {
+            document.getElementById('q-text').value       = q.question_text || '';
+            document.getElementById('q-correct').value    = q.choice_correct || '';
+            document.getElementById('q-wrong1').value     = q.choice_wrong1 || '';
+            document.getElementById('q-wrong2').value     = q.choice_wrong2 || '';
+            document.getElementById('q-wrong3').value     = q.choice_wrong3 || '';
+            document.getElementById('q-exp-correct').value = q.exp_correct || '';
+            document.getElementById('q-exp-wrong1').value  = q.exp_wrong1 || '';
+            document.getElementById('q-exp-wrong2').value  = q.exp_wrong2 || '';
+            document.getElementById('q-exp-wrong3').value  = q.exp_wrong3 || '';
+        }
+    } else {
+        // Clear form
+        ['q-text','q-correct','q-wrong1','q-wrong2','q-wrong3',
+         'q-exp-correct','q-exp-wrong1','q-exp-wrong2','q-exp-wrong3']
+            .forEach(id => document.getElementById(id).value = '');
+    }
+
+    openModal('question-modal');
+}
+
+async function saveQuestion() {
+    const id         = document.getElementById('q-edit-id').value;
+    const chapterId  = document.getElementById('q-chapter-id').value;
+    const quizDay    = parseInt(document.getElementById('q-quiz-day').value);
+
+    const question_text   = document.getElementById('q-text').value.trim();
+    const choice_correct  = document.getElementById('q-correct').value.trim();
+    const choice_wrong1   = document.getElementById('q-wrong1').value.trim();
+    const choice_wrong2   = document.getElementById('q-wrong2').value.trim();
+    const choice_wrong3   = document.getElementById('q-wrong3').value.trim();
+    const exp_correct     = document.getElementById('q-exp-correct').value.trim();
+    const exp_wrong1      = document.getElementById('q-exp-wrong1').value.trim();
+    const exp_wrong2      = document.getElementById('q-exp-wrong2').value.trim();
+    const exp_wrong3      = document.getElementById('q-exp-wrong3').value.trim();
+
+    if (!question_text || !choice_correct || !choice_wrong1 || !choice_wrong2 || !choice_wrong3) {
+        alert('กรุณากรอกคำถามและตัวเลือกให้ครบ');
+        return;
+    }
+
+    const payload = {
+        chapter_id: chapterId,
+        quiz_day: quizDay,
+        question_text,
+        choice_correct,
+        choice_wrong1,
+        choice_wrong2,
+        choice_wrong3,
+        exp_correct,
+        exp_wrong1,
+        exp_wrong2,
+        exp_wrong3
+    };
+
+    if (id) {
+        const { error } = await sb.from('questions').update(payload).eq('id', id);
+        if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+    } else {
+        const { error } = await sb.from('questions').insert(payload);
+        if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+    }
+
+    closeModal('question-modal');
+    loadQuestions();
+    loadChapters(); // update badges
+}
+
+// ============================================================
+// STUDENTS
+// ============================================================
+async function loadStudents() {
+    const tbody = document.getElementById('students-table-body');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="5">กำลังโหลด...</td></tr>';
+
+    const { data, error } = await sb
+        .from('students')
+        .select('*')
+        .order('student_id', { ascending: true });
+
+    if (error) {
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="5" style="color:var(--danger)">Error: ${error.message}</td></tr>`;
+        return;
+    }
+
+    const students = data || [];
+    if (!students.length) {
+        tbody.innerHTML = '<tr class="loading-row"><td colspan="5">ยังไม่มีนิสิต กดเพิ่มได้เลย</td></tr>';
+        return;
+    }
+
+    const SCHEDULE_DAYS = [1, 3, 7, 30];
+    tbody.innerHTML = students.map(s => {
+        const startDate = s.study_start_date
+            ? new Date(s.study_start_date).toLocaleDateString('th-TH', { day:'2-digit', month:'short', year:'2-digit' })
+            : '—';
+        const completed = s.completed_days || [];
+        const progress = SCHEDULE_DAYS.map(d => {
+            const done = completed.includes(d);
+            const label = d === 30 ? 'Post' : `D${d}`;
+            return `<span class="day-badge ${done ? 'day-done' : 'day-pending'}">${label}</span>`;
+        }).join('');
+
+        return `
+        <tr>
+            <td><strong>${s.student_id}</strong></td>
+            <td>${s.name || '<span style="color:var(--gray)">—</span>'}</td>
+            <td style="color:var(--gray); font-size:12px">${startDate}</td>
+            <td><div class="progress-days">${progress}</div></td>
+            <td>
+                <button class="btn btn-ghost btn-sm" onclick='openStudentModal(${JSON.stringify(s)})'>แก้ไข</button>
+                <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="deleteStudent('${s.student_id}', '${escapeQuotes(s.name || s.student_id)}')">ลบ</button>
+            </td>
+        </tr>
+        `;
+    }).join('');
+}
+
+function openStudentModal(s = null) {
+    document.getElementById('student-modal-title').textContent = s ? 'แก้ไขนิสิต' : 'เพิ่มนิสิต';
+    document.getElementById('student-edit-id').value  = s?.student_id || '';
+    document.getElementById('s-student-id').value     = s?.student_id || '';
+    document.getElementById('s-student-id').disabled  = !!s;
+    document.getElementById('s-name').value            = s?.name || '';
+    openModal('student-modal');
+}
+
+async function saveStudent() {
+    const editId    = document.getElementById('student-edit-id').value;
+    const studentId = document.getElementById('s-student-id').value.trim();
+    const name      = document.getElementById('s-name').value.trim() || null;
+
+    if (!studentId) { alert('กรุณากรอกรหัสนิสิต'); return; }
+
+    if (editId) {
+        const { error } = await sb.from('students').update({ name }).eq('student_id', editId);
+        if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+    } else {
+        const { error } = await sb.from('students').insert({ student_id: studentId, name });
+        if (error) {
+            if (error.code === '23505') { alert('รหัสนิสิต ' + studentId + ' มีอยู่แล้ว'); }
+            else { alert('เกิดข้อผิดพลาด: ' + error.message); }
+            return;
+        }
+    }
+
+    closeModal('student-modal');
+    loadStudents();
+}
+
+function deleteStudent(studentId, name) {
+    document.getElementById('confirm-title').textContent = `ลบนิสิต "${name}"?`;
+    document.getElementById('confirm-desc').textContent  = 'ข้อมูลทั้งหมดของนิสิตคนนี้จะถูกลบถาวร';
+    document.getElementById('confirm-action-btn').onclick = async () => {
+        await sb.from('students').delete().eq('student_id', studentId);
+        closeModal('confirm-modal');
+        loadStudents();
+    };
+    openModal('confirm-modal');
+}
+
+async function bulkAddStudents() {
+    const count = confirm('เพิ่มนิสิตรหัส 67200001 ถึง 67200071 (เลขคี่ 36 คน) เข้าระบบ?\n\nนิสิตที่มีรหัสซ้ำจะถูกข้าม');
+    if (!count) return;
+
+    const students = [];
+    for (let i = 1; i <= 71; i += 2) {
+        const id = '67200' + String(i).padStart(3, '0');
+        students.push({ student_id: id, name: null });
+    }
+
+    // Insert in batches, ignore duplicates
+    let added = 0;
+    for (const s of students) {
+        const { error } = await sb.from('students').insert(s);
+        if (!error) added++;
+    }
+
+    alert(`✅ เพิ่มนิสิต ${added} คน เรียบร้อยแล้ว`);
+    loadStudents();
+}
+
+// ============================================================
+// DATA & STATS
+// ============================================================
+async function loadStats() {
+    const [
+        { count: studentCount },
+        { count: questionCount },
+        { data: logs }
+    ] = await Promise.all([
+        sb.from('students').select('*', { count: 'exact', head: true }),
+        sb.from('questions').select('*', { count: 'exact', head: true }),
+        sb.from('session_logs').select('is_correct')
+    ]);
+
+    const totalAnswers = logs?.length || 0;
+    const correct = logs?.filter(l => l.is_correct).length || 0;
+    const accuracy = totalAnswers > 0 ? Math.round((correct / totalAnswers) * 100) : 0;
+
+    document.getElementById('stat-students').textContent  = studentCount || 0;
+    document.getElementById('stat-questions').textContent = questionCount || 0;
+    document.getElementById('stat-sessions').textContent  = totalAnswers;
+    document.getElementById('stat-accuracy').textContent  = accuracy + '%';
+}
+
+async function loadRecentLogs() {
+    const tbody = document.getElementById('logs-table-body');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="6">กำลังโหลด...</td></tr>';
+
+    const { data, error } = await sb
+        .from('session_logs')
+        .select('*, questions(question_text, chapters(chapter_number, title))')
+        .order('answered_at', { ascending: false })
+        .limit(50);
+
+    if (error) {
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="6" style="color:var(--danger)">${error.message}</td></tr>`;
+        return;
+    }
+
+    if (!data?.length) {
+        tbody.innerHTML = '<tr class="loading-row"><td colspan="6">ยังไม่มีข้อมูล</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = data.map(l => {
+        const ch = l.questions?.chapters;
+        const chLabel = ch ? `บท ${ch.chapter_number}` : '—';
+        const dayLabel = l.session_day === 30 ? 'Post-test' : `วันที่ ${l.session_day}`;
+        const qText = l.questions?.question_text || l.question_id || '—';
+        const shortQ = qText.length > 40 ? qText.substring(0, 40) + '…' : qText;
+        const when = l.answered_at ? new Date(l.answered_at).toLocaleString('th-TH', { dateStyle:'short', timeStyle:'short' }) : '—';
+        return `
+        <tr>
+            <td><strong>${l.student_id}</strong></td>
+            <td><span style="background:#f0f4ff;color:var(--primary);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700">${dayLabel}</span></td>
+            <td style="font-size:12px; color:var(--gray); max-width:200px">${chLabel} — ${shortQ}</td>
+            <td>${l.is_correct ? '✅ ถูก' : '❌ ผิด'}</td>
+            <td>${l.response_ms?.toLocaleString() || '—'}</td>
+            <td style="color:var(--gray); font-size:12px">${when}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+async function exportCSV(filterDay = null) {
+    let query = sb
+        .from('session_logs')
+        .select('*, questions(question_text, chapters(chapter_number, title)), students(name)')
+        .order('answered_at', { ascending: true });
+
+    if (filterDay !== null) {
+        query = query.eq('session_day', filterDay);
+    }
+
+    const { data, error } = await query;
+    if (error) { alert('Export error: ' + error.message); return; }
+    if (!data?.length) { alert('ไม่มีข้อมูลสำหรับ export'); return; }
+
+    const headers = [
+        'student_id', 'student_name', 'session_day', 'is_posttest',
+        'chapter_number', 'chapter_title',
+        'question_id', 'question_text',
+        'chosen_answer', 'is_correct', 'response_ms',
+        'session_id', 'answered_at'
+    ];
+
+    const csvRows = [
+        headers.join(','),
+        ...data.map(r => {
+            const ch = r.questions?.chapters;
+            return [
+                r.student_id,
+                `"${r.students?.name || ''}"`,
+                r.session_day,
+                r.session_day === 30 ? 1 : 0,
+                ch?.chapter_number || '',
+                `"${ch?.title || ''}"`,
+                r.question_id,
+                `"${(r.questions?.question_text || '').replace(/"/g, '""')}"`,
+                `"${(r.chosen_answer || '').replace(/"/g, '""')}"`,
+                r.is_correct ? 1 : 0,
+                r.response_ms || '',
+                r.session_id || '',
+                r.answered_at || ''
+            ].join(',');
+        })
+    ];
+
+    const suffix = filterDay !== null ? `_day${filterDay}` : '_all';
+    const filename = `medvocab${suffix}_${new Date().toISOString().split('T')[0]}.csv`;
+    downloadCSV(csvRows.join('\n'), filename);
+}
+
+function downloadCSV(content, filename) {
+    const bom = '﻿'; // BOM for Excel Thai charset
+    const blob = new Blob([bom + content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// RESET FUNCTIONS
+// ============================================================
+async function resetOneStudent() {
+    const studentId = document.getElementById('reset-student-id-input').value.trim();
+    if (!studentId) { alert('กรุณากรอกรหัสนิสิตก่อน'); return; }
+    if (!confirm(`ยืนยัน Reset ความคืบหน้าของ ${studentId}?\nนิสิตจะต้องเริ่มวันที่ 1 ใหม่`)) return;
+
+    const { error } = await sb
+        .from('students')
+        .update({ study_start_date: null, completed_days: [] })
+        .eq('student_id', studentId);
+
+    if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+    alert(`✅ Reset ความคืบหน้าของ ${studentId} เรียบร้อย`);
+    document.getElementById('reset-student-id-input').value = '';
+}
+
+async function resetAllProgress() {
+    if (!confirm('ยืนยัน Reset ความคืบหน้าของนิสิตทุกคน?\nทุกคนจะต้องเริ่มวันที่ 1 ใหม่')) return;
+
+    const { error } = await sb
+        .from('students')
+        .update({ study_start_date: null, completed_days: [] })
+        .neq('student_id', '');
+
+    if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+    alert('✅ Reset ความคืบหน้าทุกคน เรียบร้อย');
+    if (document.getElementById('tab-students').classList.contains('active')) loadStudents();
+}
+
+function confirmReset(type) {
+    const messages = {
+        logs: {
+            title: 'ล้าง Session Logs ทั้งหมด?',
+            desc:  'ประวัติการตอบทั้งหมดจะหายถาวร ควร Export CSV ก่อน',
+            keyword: 'ล้างlogs'
+        },
+        full: {
+            title: 'Full Reset ระบบทั้งหมด?',
+            desc:  'ความคืบหน้า + Session Logs ของทุกคนจะหายถาวร',
+            keyword: 'RESET'
+        }
+    };
+
+    const { title, desc, keyword } = messages[type];
+    const input = prompt(`⚠️ ${title}\n${desc}\n\nพิมพ์ "${keyword}" เพื่อยืนยัน:`);
+    if (input !== keyword) {
+        if (input !== null) alert('พิมพ์ไม่ตรง — ยกเลิก');
+        return;
+    }
+    executeReset(type);
+}
+
+async function executeReset(type) {
+    try {
+        if (type === 'logs' || type === 'full') {
+            const { error } = await sb.from('session_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+            if (error) throw error;
+        }
+        if (type === 'full') {
+            const { error } = await sb.from('students').update({ study_start_date: null, completed_days: [] }).neq('student_id', '');
+            if (error) throw error;
+        }
+
+        const labels = { logs: 'Session Logs', full: 'ระบบทั้งหมด' };
+        alert(`✅ Reset ${labels[type]} เรียบร้อยแล้ว`);
+        loadStats();
+    } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+    }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function escapeQuotes(str) {
+    return (str || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+// Init: load chapters when page loads (after login)
+// Already called in adminLogin()
+</script>
+</body>
+</html>

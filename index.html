@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedVocab - เรียนคำศัพท์การแพทย์</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --danger:  #ef4444;
+            --warning: #f59e0b;
+            --bg:      #f0f4ff;
+            --text:    #1e1b4b;
+            --gray:    #6b7280;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .screen { display:none; width:100%; max-width:480px; }
+        .screen.active { display:flex; flex-direction:column; gap:16px; }
+        .card {
+            background: white; border-radius: 20px; padding: 28px;
+            box-shadow: 0 4px 24px rgba(79,70,229,0.1);
+        }
+        h1 { font-size:28px; font-weight:800; color:var(--text); }
+        h2 { font-size:18px; font-weight:700; color:var(--text); }
+        p  { color:var(--gray); font-size:14px; line-height:1.6; }
+
+        /* Logo */
+        .logo { text-align:center; }
+        .logo span { font-size:48px; }
+        .logo h1  { font-size:30px; color:var(--primary); margin-top:4px; }
+        .logo p   { margin-top:4px; }
+
+        /* Input */
+        input[type="text"] {
+            width:100%; padding:14px 16px;
+            border:2px solid #e5e7eb; border-radius:12px;
+            font-size:16px; outline:none; letter-spacing:2px;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus { border-color:var(--primary); }
+
+        /* Buttons */
+        .btn {
+            width:100%; padding:14px; border:none; border-radius:12px;
+            font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s;
+        }
+        .btn-primary { background:var(--primary); color:white; }
+        .btn-primary:hover { background:#4338ca; transform:translateY(-1px); }
+        .btn-primary:disabled { background:#c7d2fe; cursor:not-allowed; transform:none; }
+        .btn-outline {
+            background:transparent; color:var(--primary);
+            border:2px solid var(--primary); margin-top:10px;
+        }
+        .btn-outline:hover { background:#f0f4ff; }
+
+        /* Progress */
+        .progress-bar { background:#e5e7eb; border-radius:99px; height:8px; overflow:hidden; }
+        .progress-fill { background:var(--primary); height:100%; border-radius:99px; transition:width 0.3s; }
+
+        /* Timer bar */
+        .timer-wrap { background:#e5e7eb; border-radius:99px; height:12px; overflow:hidden; margin-bottom:4px; }
+        .timer-fill {
+            height:100%; border-radius:99px; background:var(--success);
+            transition:width 0.1s linear, background 0.3s;
+        }
+        .timer-fill.warning { background:var(--warning); }
+        .timer-fill.danger  { background:var(--danger); }
+        .timer-label { text-align:right; font-size:11px; color:var(--gray); }
+
+        /* Word / Question display */
+        .question-box {
+            background:linear-gradient(135deg, var(--primary), #7c3aed);
+            border-radius:16px; padding:20px; color:white; text-align:center;
+            margin-bottom:16px;
+        }
+        .question-box .chapter-tag {
+            font-size:11px; opacity:0.8; text-transform:uppercase;
+            letter-spacing:1px; margin-bottom:8px;
+        }
+        .question-box .question-text { font-size:17px; font-weight:700; line-height:1.5; }
+
+        /* Choices */
+        .choices { display:flex; flex-direction:column; gap:8px; }
+        .choice-btn {
+            padding:12px 16px; border:2px solid #e5e7eb; border-radius:12px;
+            background:white; text-align:left; font-size:13px; cursor:pointer;
+            transition:all 0.15s; color:var(--text); line-height:1.4;
+        }
+        .choice-btn:hover:not(:disabled) { border-color:var(--primary); background:#f0f4ff; }
+        .choice-btn.correct   { border-color:var(--success); background:#d1fae5; color:#065f46; }
+        .choice-btn.incorrect { border-color:var(--danger);  background:#fee2e2; color:#991b1b; }
+        .choice-btn.neutral   { border-color:#e5e7eb; background:#f9fafb; color:var(--gray); }
+        .choice-btn:disabled  { cursor:default; }
+
+        /* Feedback banner */
+        .feedback {
+            text-align:center; padding:10px; border-radius:10px;
+            font-weight:700; font-size:14px; display:none; margin-top:12px;
+        }
+        .feedback.show    { display:block; }
+        .feedback.correct { background:#d1fae5; color:#065f46; }
+        .feedback.incorrect { background:#fee2e2; color:#991b1b; }
+
+        /* Explanation panel */
+        .explanation-panel { display:none; margin-top:12px; }
+        .explanation-panel.show { display:block; }
+        .exp-item {
+            border-radius:10px; padding:12px; margin-bottom:8px;
+            border-left:4px solid #e5e7eb;
+        }
+        .exp-item.correct { border-left-color:var(--success); background:#f0fdf4; }
+        .exp-item.wrong   { border-left-color:#e5e7eb; background:#f9fafb; }
+        .exp-item .exp-answer { font-weight:700; font-size:13px; color:var(--text); margin-bottom:4px; }
+        .exp-item .exp-desc   { font-size:12px; color:var(--gray); line-height:1.5; }
+        .exp-item.correct .exp-answer { color:#065f46; }
+
+        /* Next button */
+        .btn-action {
+            width:100%; padding:13px; border:none; border-radius:12px;
+            font-size:15px; font-weight:700; cursor:pointer;
+            background:var(--primary); color:white;
+            margin-top:12px; display:none; transition:all 0.2s;
+        }
+        .btn-action:hover { background:#4338ca; transform:translateY(-1px); }
+        .btn-action.show  { display:block; }
+
+        /* Schedule timeline */
+        .timeline { display:flex; flex-direction:column; gap:10px; }
+        .timeline-item {
+            display:flex; align-items:center; gap:12px;
+            padding:12px 16px; border-radius:12px; background:#f9fafb;
+        }
+        .timeline-item.done    { background:#d1fae5; }
+        .timeline-item.active  { background:#eef2ff; border:2px solid var(--primary); }
+        .timeline-item.locked  { opacity:0.5; }
+        .timeline-dot { font-size:20px; }
+        .timeline-info { flex:1; }
+        .timeline-info .t-label { font-size:13px; font-weight:700; color:var(--text); }
+        .timeline-info .t-date  { font-size:11px; color:var(--gray); margin-top:2px; }
+
+        /* Stats */
+        .stats-row { display:flex; gap:10px; }
+        .stat-box { flex:1; background:#f9fafb; border-radius:12px; padding:12px; text-align:center; }
+        .stat-box .value { font-size:26px; font-weight:800; color:var(--primary); }
+        .stat-box .label { font-size:11px; color:var(--gray); margin-top:2px; }
+
+        .xp-big { text-align:center; font-size:44px; font-weight:800; color:var(--warning); }
+
+        /* Loading */
+        .loading-box { text-align:center; padding:40px; }
+        .spinner {
+            width:44px; height:44px; border:4px solid #e5e7eb;
+            border-top-color:var(--primary); border-radius:50%;
+            animation:spin 0.8s linear infinite; margin:0 auto 16px;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        .error-msg { color:var(--danger); font-size:13px; text-align:center; }
+        .q-counter { font-size:13px; color:var(--gray); font-weight:600; }
+
+        /* Day badge */
+        .day-badge {
+            display:inline-block; padding:3px 12px; border-radius:99px;
+            font-size:12px; font-weight:700;
+        }
+        .day-badge.normal   { background:#eef2ff; color:var(--primary); }
+        .day-badge.posttest { background:#fff7ed; color:#c2410c; }
+
+        /* Waiting countdown */
+        .wait-countdown {
+            font-size:44px; font-weight:800; text-align:center;
+            color:var(--primary); font-variant-numeric:tabular-nums; margin:12px 0;
+        }
+
+        /* Result list */
+        .result-list { display:flex; flex-direction:column; gap:8px; }
+        .result-item {
+            display:flex; align-items:center; gap:10px;
+            padding:10px 12px; border-radius:10px; background:#f9fafb; font-size:13px;
+        }
+        .result-item .word-text { font-weight:700; flex:1; color:var(--text); }
+        .result-item .time-text { color:var(--gray); font-size:12px; }
+
+        .next-session-box {
+            background:#eef2ff; border-radius:12px; padding:14px;
+            text-align:center; font-size:13px; color:var(--primary); font-weight:600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="screen-login" class="screen active">
+    <div class="card"><div class="logo">
+        <span>🩺</span>
+        <h1>MedVocab</h1>
+        <p>ระบบฝึกคำศัพท์การแพทย์เพื่อการวิจัย</p>
+    </div></div>
+    <div class="card">
+        <h2 style="margin-bottom:14px">เข้าสู่ระบบ</h2>
+        <input type="text" id="input-student-id" placeholder="รหัสนิสิต เช่น 67200001" maxlength="10"/>
+        <div id="login-error" class="error-msg" style="margin-top:8px"></div>
+        <button class="btn btn-primary" id="btn-login" style="margin-top:12px" onclick="handleLogin()">เริ่มได้เลย →</button>
+        <button class="btn btn-outline" onclick="showAdminLogin()">🔐 Admin</button>
+    </div>
+</div>
+
+<!-- ===== LOADING ===== -->
+<div id="screen-loading" class="screen">
+    <div class="card"><div class="loading-box">
+        <div class="spinner"></div>
+        <p id="loading-text">กำลังโหลด...</p>
+    </div></div>
+</div>
+
+<!-- ===== WAITING (รอรอบถัดไป) ===== -->
+<div id="screen-waiting" class="screen">
+    <div class="card" style="text-align:center">
+        <div style="font-size:48px">⏳</div>
+        <h2 style="margin-top:8px">รอก่อนนะ!</h2>
+        <p style="margin-top:4px" id="wait-next-label">ครั้งถัดไปจะเปิดให้ทำเร็วๆนี้</p>
+        <div class="wait-countdown" id="wait-countdown">00:00:00</div>
+        <p style="font-size:12px; color:var(--gray)" id="wait-date-label"></p>
+    </div>
+    <div class="card">
+        <p style="font-weight:600; margin-bottom:12px">ตารางการทำแบบฝึกหัด</p>
+        <div class="timeline" id="timeline-container"></div>
+    </div>
+    <div class="card">
+        <button class="btn btn-outline" onclick="logout()">ออกจากระบบ</button>
+    </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div id="screen-quiz" class="screen">
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+            <span class="q-counter" id="q-counter">ข้อ 1 / 5</span>
+            <span id="quiz-day-badge"></span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="timer-wrap"><div class="timer-fill" id="timer-bar"></div></div>
+        <div class="timer-label" id="timer-label">0.0s</div>
+
+        <div class="question-box" style="margin-top:12px">
+            <div class="chapter-tag" id="q-chapter">—</div>
+            <div class="question-text" id="q-text">—</div>
+        </div>
+
+        <!-- ตัวเลือก -->
+        <div class="choices" id="choices-container"></div>
+
+        <!-- Feedback ทันที -->
+        <div class="feedback" id="feedback"></div>
+
+        <!-- ปุ่มดูคำอธิบาย -->
+        <button class="btn-action" id="btn-explain" onclick="showExplanation()">📖 ดูคำอธิบาย →</button>
+
+        <!-- Explanation panel -->
+        <div class="explanation-panel" id="explanation-panel"></div>
+
+        <!-- ปุ่มไปต่อ -->
+        <button class="btn-action" id="btn-next" onclick="goToNext()">ข้อต่อไป →</button>
+    </div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div id="screen-result" class="screen">
+    <div class="card" style="text-align:center">
+        <p id="result-day-label" style="font-size:13px; color:var(--gray); margin-bottom:4px"></p>
+        <div class="xp-big" id="result-score">0/5</div>
+        <p id="result-sub" style="margin-top:6px"></p>
+    </div>
+    <div class="card">
+        <div class="stats-row">
+            <div class="stat-box"><div class="value" id="r-correct">0</div><div class="label">ถูก ✅</div></div>
+            <div class="stat-box"><div class="value" id="r-wrong">0</div><div class="label">ผิด ❌</div></div>
+            <div class="stat-box"><div class="value" id="r-time">0s</div><div class="label">เวลาเฉลี่ย</div></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="result-list" id="result-list"></div>
+    </div>
+    <div class="card" id="next-session-card">
+        <div class="next-session-box" id="next-session-info"></div>
+    </div>
+    <div class="card">
+        <button class="btn btn-outline" onclick="logout()">ออกจากระบบ</button>
+    </div>
+</div>
+
+<!-- ===== ALL DONE ===== -->
+<div id="screen-done" class="screen">
+    <div class="card" style="text-align:center">
+        <div style="font-size:56px">🎓</div>
+        <h1 style="margin-top:12px; color:var(--primary)">ขอบคุณ!</h1>
+        <p style="margin-top:8px">คุณทำแบบฝึกหัดครบทุกรอบแล้ว<br>ขอบคุณที่เข้าร่วมการวิจัยนี้</p>
+    </div>
+    <div class="card">
+        <button class="btn btn-outline" onclick="logout()">ออกจากระบบ</button>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://qftgvzsakmyugmspgqex.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_SvxKwCNAzg9PurBHRi1LUQ_4o-hBVJJ';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const SCHEDULE = [
+    { day:1,  offsetDays:0,  label:'วันที่ 1',   isPosttest:false },
+    { day:3,  offsetDays:2,  label:'วันที่ 3',   isPosttest:false },
+    { day:7,  offsetDays:6,  label:'วันที่ 7',   isPosttest:false },
+    { day:30, offsetDays:29, label:'Post-test',  isPosttest:true  },
+];
+
+const TIMER_MAX = 30;
+
+// ============================================================
+// STATE
+// ============================================================
+let currentStudent     = null;
+let currentDay         = null;
+let isPosttest         = false;
+let quizQuestions      = [];
+let currentQIndex      = 0;
+let questionResults    = [];
+let currentSessionId   = null;
+let timerInterval      = null;
+let waitInterval       = null;
+let questionStartTime  = null;
+
+// ============================================================
+// UTILS
+// ============================================================
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+function setLoading(text) { document.getElementById('loading-text').textContent = text; }
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
+function formatDate(date) {
+    return date.toLocaleDateString('th-TH', { day:'numeric', month:'long', year:'numeric' });
+}
+
+// ============================================================
+// SERVER TIME
+// ============================================================
+async function getServerTime() {
+    try { const { data } = await sb.rpc('get_server_time'); return new Date(data); }
+    catch { return new Date(); }
+}
+
+// ============================================================
+// SCHEDULE LOGIC
+// ============================================================
+async function getNextSession(student) {
+    const completed = student.completed_days || [];
+
+    if (!student.study_start_date) {
+        return { day:1, available:true, isPosttest:false };
+    }
+
+    const serverNow = await getServerTime();
+    const start     = new Date(student.study_start_date);
+    const daysSince = Math.floor((serverNow - start) / 86400000);
+
+    for (const s of SCHEDULE) {
+        if (!completed.includes(s.day)) {
+            if (daysSince >= s.offsetDays) {
+                return { day:s.day, available:true, isPosttest:s.isPosttest };
+            } else {
+                const availDate = new Date(start);
+                availDate.setDate(availDate.getDate() + s.offsetDays);
+                return { day:s.day, available:false, availableDate:availDate, isPosttest:s.isPosttest };
+            }
+        }
+    }
+    return { day:null, available:false, allDone:true };
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function handleLogin() {
+    const sid   = document.getElementById('input-student-id').value.trim();
+    const errEl = document.getElementById('login-error');
+    errEl.textContent = '';
+
+    if (!sid || sid.length < 4) { errEl.textContent = 'กรุณากรอกรหัสนิสิต'; return; }
+
+    document.getElementById('btn-login').disabled = true;
+    showScreen('screen-loading');
+    setLoading('กำลังตรวจสอบรหัสนิสิต...');
+
+    try {
+        const { data: student } = await sb
+            .from('students').select('*').eq('student_id', sid).maybeSingle();
+
+        if (!student) {
+            showScreen('screen-login');
+            document.getElementById('login-error').textContent = 'ไม่พบรหัสนิสิตในระบบ กรุณาติดต่ออาจารย์';
+            document.getElementById('btn-login').disabled = false;
+            return;
+        }
+
+        await sb.from('students').update({ last_active: new Date().toISOString().split('T')[0] }).eq('student_id', sid);
+        currentStudent = student;
+
+        setLoading('กำลังตรวจสอบตาราง...');
+        const session = await getNextSession(student);
+
+        if (session.allDone) { showScreen('screen-done'); return; }
+
+        if (!session.available) {
+            showWaitingScreen(session);
+            return;
+        }
+
+        currentDay    = session.day;
+        isPosttest    = session.isPosttest;
+        await startQuiz();
+
+    } catch (err) {
+        console.error(err);
+        showScreen('screen-login');
+        document.getElementById('login-error').textContent = 'เกิดข้อผิดพลาด: ' + err.message;
+        document.getElementById('btn-login').disabled = false;
+    }
+}
+
+function logout() {
+    currentStudent = null; currentDay = null;
+    if (waitInterval) clearInterval(waitInterval);
+    if (timerInterval) clearInterval(timerInterval);
+    document.getElementById('input-student-id').value = '';
+    document.getElementById('btn-login').disabled = false;
+    document.getElementById('login-error').textContent = '';
+    showScreen('screen-login');
+}
+
+// ============================================================
+// WAITING SCREEN
+// ============================================================
+function showWaitingScreen(session) {
+    if (waitInterval) clearInterval(waitInterval);
+
+    const label = SCHEDULE.find(s => s.day === session.day)?.label || `วันที่ ${session.day}`;
+    document.getElementById('wait-next-label').textContent = `ครั้งถัดไป: ${label}`;
+    document.getElementById('wait-date-label').textContent = `เปิดวันที่ ${formatDate(session.availableDate)}`;
+
+    // Countdown
+    function updateCountdown() {
+        const diff = session.availableDate - new Date();
+        if (diff <= 0) { clearInterval(waitInterval); document.getElementById('wait-countdown').textContent = 'เปิดแล้ว! 🎉'; return; }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('wait-countdown').textContent =
+            String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+    updateCountdown();
+    waitInterval = setInterval(updateCountdown, 1000);
+
+    // Timeline
+    renderTimeline();
+    showScreen('screen-waiting');
+}
+
+function renderTimeline() {
+    const completed = currentStudent.completed_days || [];
+    const start     = currentStudent.study_start_date ? new Date(currentStudent.study_start_date) : new Date();
+    const container = document.getElementById('timeline-container');
+
+    container.innerHTML = SCHEDULE.map(s => {
+        const availDate = new Date(start);
+        availDate.setDate(availDate.getDate() + s.offsetDays);
+
+        let cls = 'locked', icon = '🔒';
+        if (completed.includes(s.day)) { cls = 'done'; icon = '✅'; }
+        else if (new Date() >= availDate) { cls = 'active'; icon = '▶️'; }
+
+        return `
+        <div class="timeline-item ${cls}">
+            <span class="timeline-dot">${icon}</span>
+            <div class="timeline-info">
+                <div class="t-label">${s.label}${s.isPosttest ? ' 📝' : ''}</div>
+                <div class="t-date">${formatDate(availDate)}</div>
+            </div>
+            ${completed.includes(s.day) ? '<span style="font-size:12px;color:var(--success);font-weight:700">เสร็จแล้ว</span>' : ''}
+        </div>`;
+    }).join('');
+}
+
+// ============================================================
+// START QUIZ
+// ============================================================
+async function startQuiz() {
+    showScreen('screen-loading');
+    setLoading('กำลังเตรียมโจทย์...');
+
+    try {
+        let questions = [];
+
+        if (isPosttest) {
+            // Post-test: ดึงโจทย์ที่เคยทำไปแล้วทั้งหมด (วันที่ 1, 3, 7)
+            const { data: logs } = await sb
+                .from('session_logs').select('question_id')
+                .eq('student_id', currentStudent.student_id)
+                .in('quiz_day', [1, 3, 7])
+                .not('question_id', 'is', null);
+
+            const qIds = [...new Set((logs || []).map(l => l.question_id))];
+
+            if (qIds.length > 0) {
+                const { data: qs } = await sb
+                    .from('questions').select('*, chapters(name, order_num)')
+                    .in('id', qIds);
+                questions = (qs || []).sort(() => Math.random() - 0.5);
+            }
+        } else {
+            // วันปกติ: ดึง 1 โจทย์ต่อบท ตาม quiz_day
+            const { data: qs } = await sb
+                .from('questions').select('*, chapters(name, order_num)')
+                .eq('quiz_day', currentDay)
+                .order('chapters(order_num)');
+            questions = qs || [];
+        }
+
+        if (questions.length === 0) {
+            alert('ยังไม่มีโจทย์สำหรับวันนี้ กรุณาติดต่ออาจารย์');
+            showScreen('screen-login');
+            return;
+        }
+
+        quizQuestions   = questions;
+        currentQIndex   = 0;
+        questionResults = [];
+        currentSessionId = generateUUID();
+
+        // ถ้าเป็นวันที่ 1 ครั้งแรก → set study_start_date
+        if (currentDay === 1 && !currentStudent.study_start_date) {
+            const today = new Date().toISOString().split('T')[0];
+            await sb.from('students').update({ study_start_date: today }).eq('student_id', currentStudent.student_id);
+            currentStudent.study_start_date = today;
+        }
+
+        // Badge label
+        const badge = document.getElementById('quiz-day-badge');
+        badge.innerHTML = isPosttest
+            ? '<span class="day-badge posttest">📝 Post-test</span>'
+            : `<span class="day-badge normal">วันที่ ${currentDay}</span>`;
+
+        showScreen('screen-quiz');
+        showQuestion();
+
+    } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+        showScreen('screen-login');
+    }
+}
+
+// ============================================================
+// QUESTION
+// ============================================================
+function showQuestion() {
+    const q     = quizQuestions[currentQIndex];
+    const total = quizQuestions.length;
+
+    document.getElementById('q-counter').textContent     = `ข้อ ${currentQIndex + 1} / ${total}`;
+    document.getElementById('progress-fill').style.width = `${(currentQIndex / total) * 100}%`;
+    document.getElementById('q-chapter').textContent     = q.chapters?.name || '—';
+    document.getElementById('q-text').textContent        = q.question_text;
+
+    // Reset panels
+    document.getElementById('feedback').className           = 'feedback';
+    document.getElementById('btn-explain').className        = 'btn-action';
+    document.getElementById('btn-next').className           = 'btn-action';
+    document.getElementById('explanation-panel').className  = 'explanation-panel';
+    document.getElementById('explanation-panel').innerHTML  = '';
+
+    // สร้าง choices (สุ่มลำดับ)
+    const choices = [
+        { text: q.correct_answer, isCorrect: true,  exp: q.exp_correct },
+        { text: q.wrong_1,        isCorrect: false, exp: q.exp_wrong1  },
+        { text: q.wrong_2,        isCorrect: false, exp: q.exp_wrong2  },
+        { text: q.wrong_3,        isCorrect: false, exp: q.exp_wrong3  },
+    ].sort(() => Math.random() - 0.5);
+
+    // เก็บ choices สำหรับใช้ตอน explain
+    quizQuestions[currentQIndex]._shuffledChoices = choices;
+
+    const container = document.getElementById('choices-container');
+    container.innerHTML = '';
+    choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className   = 'choice-btn';
+        btn.textContent = c.text;
+        btn.onclick     = () => handleAnswer(c, btn);
+        container.appendChild(btn);
+    });
+
+    startTimer();
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+    questionStartTime = Date.now();
+    if (timerInterval) clearInterval(timerInterval);
+    const barEl   = document.getElementById('timer-bar');
+    const labelEl = document.getElementById('timer-label');
+    barEl.className = 'timer-fill'; barEl.style.width = '100%';
+
+    timerInterval = setInterval(() => {
+        const elapsed = (Date.now() - questionStartTime) / 1000;
+        const pct = Math.max(0, 100 - (elapsed / TIMER_MAX) * 100);
+        barEl.style.width = pct + '%';
+        labelEl.textContent = elapsed.toFixed(1) + 's';
+        if (pct < 25)      barEl.className = 'timer-fill danger';
+        else if (pct < 50) barEl.className = 'timer-fill warning';
+        else               barEl.className = 'timer-fill';
+    }, 100);
+}
+
+function stopTimer() { if (timerInterval) clearInterval(timerInterval); return Date.now() - questionStartTime; }
+
+// ============================================================
+// HANDLE ANSWER
+// ============================================================
+function handleAnswer(choice, clickedBtn) {
+    const responseMs = stopTimer();
+    const isCorrect  = choice.isCorrect;
+
+    // Quality score
+    let quality;
+    if (isCorrect) { quality = responseMs < 5000 ? 5 : responseMs < 10000 ? 4 : 3; }
+    else           { quality = responseMs < 10000 ? 2 : 1; }
+
+    const xp = { 5:10, 4:8, 3:5, 2:2, 1:1 }[quality];
+    questionResults.push({ q: quizQuestions[currentQIndex], isCorrect, responseMs, quality, xp });
+
+    // บันทึกทันที
+    saveAnswerNow(quizQuestions[currentQIndex], isCorrect, responseMs, quality, xp);
+
+    // แสดงสี choices
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.disabled = true;
+        const text = btn.textContent;
+        if (text === quizQuestions[currentQIndex].correct_answer) btn.classList.add('correct');
+        else btn.classList.add('neutral');
+    });
+    if (!isCorrect) clickedBtn.classList.remove('neutral'), clickedBtn.classList.add('incorrect');
+
+    // Feedback banner
+    const fb = document.getElementById('feedback');
+    fb.className  = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+    fb.textContent = isCorrect
+        ? `✅ ถูกต้อง! +${xp} XP (${(responseMs/1000).toFixed(1)}s)`
+        : `❌ ผิด — คำตอบที่ถูก: "${quizQuestions[currentQIndex].correct_answer}"`;
+
+    // แสดงปุ่มดูคำอธิบาย
+    document.getElementById('btn-explain').className = 'btn-action show';
+}
+
+// ============================================================
+// EXPLANATION
+// ============================================================
+function showExplanation() {
+    document.getElementById('btn-explain').className = 'btn-action'; // ซ่อน
+
+    const q       = quizQuestions[currentQIndex];
+    const choices = q._shuffledChoices || [];
+    const panel   = document.getElementById('explanation-panel');
+
+    panel.innerHTML = '<p style="font-weight:700; font-size:13px; margin-bottom:8px">📖 คำอธิบายแต่ละตัวเลือก</p>' +
+        choices.map(c => `
+            <div class="exp-item ${c.isCorrect ? 'correct' : 'wrong'}">
+                <div class="exp-answer">${c.isCorrect ? '✅' : '❌'} ${c.text}</div>
+                <div class="exp-desc">${c.exp || '—'}</div>
+            </div>
+        `).join('');
+
+    panel.className = 'explanation-panel show';
+
+    // แสดงปุ่มไปต่อ
+    const isLast = currentQIndex + 1 >= quizQuestions.length;
+    const nextBtn = document.getElementById('btn-next');
+    nextBtn.textContent = isLast ? (isPosttest ? 'ดูผล Post-test 🏁' : 'ดูผลลัพธ์ 🏁') : 'ข้อต่อไป →';
+    nextBtn.className   = 'btn-action show';
+}
+
+function goToNext() {
+    document.getElementById('btn-next').className = 'btn-action';
+    currentQIndex++;
+    if (currentQIndex < quizQuestions.length) showQuestion();
+    else finishSession();
+}
+
+// ============================================================
+// SAVE ANSWER
+// ============================================================
+async function saveAnswerNow(q, isCorrect, responseMs, quality, xp) {
+    try {
+        await sb.from('session_logs').insert({
+            student_id:   currentStudent.student_id,
+            session_id:   currentSessionId,
+            question_id:  q.id,
+            word_id:      q.word_id || null,
+            quiz_day:     currentDay,
+            is_posttest:  isPosttest,
+            session_number: currentDay,
+            is_correct:   isCorrect,
+            response_ms:  responseMs,
+            quality_score: quality,
+            xp_gained:    xp,
+            session_date: new Date().toISOString().split('T')[0]
+        });
+    } catch(e) { console.error('Save error:', e); }
+}
+
+// ============================================================
+// FINISH SESSION
+// ============================================================
+async function finishSession() {
+    showScreen('screen-loading');
+    setLoading('กำลังบันทึกผล...');
+
+    try {
+        const totalXp      = questionResults.reduce((s,r) => s + r.xp, 0);
+        const correctCount = questionResults.filter(r => r.isCorrect).length;
+        const avgTime      = Math.round(questionResults.reduce((s,r) => s + r.responseMs, 0) / questionResults.length);
+
+        // อัพเดท completed_days
+        const completed    = [...(currentStudent.completed_days || [])];
+        if (!completed.includes(currentDay)) completed.push(currentDay);
+
+        await sb.from('students').update({
+            completed_days: completed,
+            total_xp: (currentStudent.total_xp || 0) + totalXp
+        }).eq('student_id', currentStudent.student_id);
+
+        currentStudent.completed_days = completed;
+        currentStudent.total_xp = (currentStudent.total_xp || 0) + totalXp;
+
+        showResultScreen(correctCount, avgTime, totalXp);
+
+    } catch(err) {
+        console.error(err);
+        const c = questionResults.filter(r => r.isCorrect).length;
+        const t = Math.round(questionResults.reduce((s,r) => s + r.responseMs, 0) / questionResults.length);
+        showResultScreen(c, t, questionResults.reduce((s,r) => s + r.xp, 0));
+    }
+}
+
+// ============================================================
+// RESULT SCREEN
+// ============================================================
+async function showResultScreen(correctCount, avgTimeMs, totalXp) {
+    const total    = questionResults.length;
+    const accuracy = Math.round((correctCount / total) * 100);
+
+    document.getElementById('result-day-label').textContent = isPosttest ? '📝 ผล Post-test' : `ผลวันที่ ${currentDay}`;
+    document.getElementById('result-score').textContent     = `${correctCount}/${total}`;
+    document.getElementById('result-sub').textContent       = `ความแม่นยำ ${accuracy}% · +${totalXp} XP`;
+    document.getElementById('r-correct').textContent = correctCount;
+    document.getElementById('r-wrong').textContent   = total - correctCount;
+    document.getElementById('r-time').textContent    = (avgTimeMs/1000).toFixed(1) + 's';
+
+    // Result list
+    const list = document.getElementById('result-list');
+    list.innerHTML = '';
+    questionResults.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        item.innerHTML = `
+            <span>${r.isCorrect ? '✅' : '❌'}</span>
+            <span class="word-text" style="font-size:12px">${r.q.question_text.substring(0,40)}...</span>
+            <span class="time-text">${(r.responseMs/1000).toFixed(1)}s</span>`;
+        list.appendChild(item);
+    });
+
+    // Next session info
+    const nextSession   = await getNextSession(currentStudent);
+    const nextCard      = document.getElementById('next-session-card');
+    const nextInfo      = document.getElementById('next-session-info');
+    if (nextSession.allDone) {
+        nextInfo.textContent = '🎓 คุณทำครบทุกรอบแล้ว! ขอบคุณที่ร่วมวิจัย';
+    } else if (!nextSession.available) {
+        const sched = SCHEDULE.find(s => s.day === nextSession.day);
+        nextInfo.textContent = `ครั้งถัดไป: ${sched?.label} — ${formatDate(nextSession.availableDate)}`;
+    } else {
+        nextInfo.textContent = `ครั้งถัดไป: พร้อมทำได้แล้ว!`;
+    }
+
+    showScreen('screen-result');
+}
+
+// ============================================================
+// ADMIN LOGIN
+// ============================================================
+async function showAdminLogin() {
+    const pass = prompt('รหัส Admin:');
+    if (pass === null) return;
+    try {
+        const { data: isValid } = await sb.rpc('verify_admin', { p_username:'admin', p_password:pass });
+        if (isValid) window.location.href = 'admin.html';
+        else alert('รหัสไม่ถูกต้อง');
+    } catch {
+        if (pass === 'admin1234') window.location.href = 'admin.html';
+        else alert('รหัสไม่ถูกต้อง');
+    }
+}
+
+document.getElementById('input-student-id').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+});
+</script>
+</body>
+</html>
