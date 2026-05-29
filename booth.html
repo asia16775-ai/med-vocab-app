@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedVocab — Booth Presentation</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    /* ======================================================
+       BASE
+    ====================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c1a;
+      --surface:   rgba(255,255,255,0.06);
+      --border:    rgba(255,255,255,0.10);
+      --cyan:      #00d4ff;
+      --purple:    #7c3aed;
+      --green:     #10b981;
+      --gold:      #f59e0b;
+      --red:       #ef4444;
+      --text:      #f1f5f9;
+      --text2:     #94a3b8;
+      --text3:     #475569;
+      --radius:    18px;
+      --nav-h:     64px;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ======================================================
+       ANIMATED BACKGROUND
+    ====================================================== */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      overflow: hidden; pointer-events: none;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: blobFloat 12s ease-in-out infinite;
+    }
+    .blob-1 { width:500px; height:500px; background:var(--cyan);   top:-100px; left:-100px; animation-delay:0s; }
+    .blob-2 { width:400px; height:400px; background:var(--purple); bottom:-80px; right:-80px; animation-delay:-4s; }
+    .blob-3 { width:300px; height:300px; background:var(--green);  top:40%; left:55%; animation-delay:-8s; }
+    @keyframes blobFloat {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%      { transform: translate(30px,-30px) scale(1.05); }
+      66%      { transform: translate(-20px,20px) scale(0.95); }
+    }
+
+    /* ======================================================
+       NAV
+    ====================================================== */
+    .booth-nav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+      background: rgba(8,12,26,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; z-index: 100;
+    }
+    .nav-logo {
+      font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-logo span { font-size: 13px; color: var(--text2); -webkit-text-fill-color: var(--text2); font-weight: 500; margin-left: 8px; }
+    .nav-tabs { display: flex; gap: 6px; }
+    .nav-tab {
+      padding: 8px 20px; border-radius: 50px; border: 1px solid var(--border);
+      background: transparent; color: var(--text2); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .nav-tab:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+    .nav-tab.active {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border-color: transparent; color: #fff;
+    }
+    .nav-university {
+      font-size: 12px; color: var(--text3); white-space: nowrap;
+    }
+
+    /* ======================================================
+       TAB SECTIONS
+       NOTE: display is set via JS inline style to avoid
+       CSS specificity conflicts with section-specific layouts
+    ====================================================== */
+    .tab-section { min-height: 100vh; padding-top: var(--nav-h); }
+
+    /* ======================================================
+       HERO SECTION
+    ====================================================== */
+    #tab-hero {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      grid-template-rows: auto auto;
+      gap: 28px;
+      padding: calc(var(--nav-h) + 40px) 48px 40px;
+      min-height: 100vh;
+      position: relative; z-index: 1;
+    }
+
+    .hero-main {
+      grid-column: 1; grid-row: 1;
+      display: flex; flex-direction: column; justify-content: center; gap: 24px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 50px;
+      background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3);
+      color: var(--cyan); font-size: 12px; font-weight: 700; width: fit-content;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .hero-badge::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--cyan); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(1.4);} }
+
+    .hero-title {
+      font-size: clamp(36px, 4vw, 58px);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -1px;
+    }
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--text2); line-height: 1.7; max-width: 540px;
+    }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-hero {
+      padding: 16px 32px; border-radius: 14px; font-size: 16px; font-weight: 700;
+      cursor: pointer; border: none; transition: all .2s; letter-spacing: 0.2px;
+    }
+    .btn-hero.primary {
+      background: linear-gradient(135deg, var(--cyan), #0099cc);
+      color: #000; box-shadow: 0 8px 32px rgba(0,212,255,0.3);
+    }
+    .btn-hero.primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,212,255,0.45); }
+    .btn-hero.secondary {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-hero.secondary:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
+
+    /* Stats row */
+    .hero-stats {
+      display: flex; gap: 20px; flex-wrap: wrap;
+    }
+    .stat-pill {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--border);
+    }
+    .stat-pill .val { font-size: 24px; font-weight: 900; color: var(--cyan); }
+    .stat-pill .lbl { font-size: 12px; color: var(--text2); font-weight: 600; line-height: 1.3; }
+
+    /* QR + Right panel */
+    .hero-right {
+      grid-column: 2; grid-row: 1 / 3;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .qr-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      text-align: center;
+    }
+    .qr-card h4 { font-size: 14px; font-weight: 700; color: var(--text2); }
+    .qr-card p  { font-size: 12px; color: var(--text3); line-height: 1.5; }
+    #qr-canvas  { border-radius: 12px; background: white; padding: 8px; display:inline-block; }
+    #qr-canvas img, #qr-canvas canvas { border-radius: 8px; display: block; }
+
+    .research-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      flex: 1;
+    }
+    .research-card h4 {
+      font-size: 13px; font-weight: 700; color: var(--text2);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px;
+    }
+    .step-list { display: flex; flex-direction: column; gap: 12px; }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #000;
+    }
+    .step-item p { font-size: 13px; line-height: 1.5; color: var(--text); }
+    .step-item small { color: var(--text2); font-size: 11px; }
+
+    /* Timeline strip */
+    .timeline-strip {
+      grid-column: 1; grid-row: 2;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 28px;
+    }
+    .timeline-strip h4 {
+      font-size: 12px; color: var(--text2); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+    }
+    .timeline-row {
+      display: flex; align-items: center; gap: 0;
+    }
+    .tl-step {
+      display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;
+    }
+    .tl-dot {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; position: relative;
+    }
+    .tl-line { flex: 1; height: 2px; background: linear-gradient(90deg, var(--cyan), var(--purple)); opacity: 0.4; }
+    .tl-label { font-size: 11px; font-weight: 700; color: var(--text2); text-align: center; }
+    .tl-day   { font-size: 10px; color: var(--text3); }
+
+    /* ======================================================
+       DEMO SECTION
+    ====================================================== */
+    #tab-demo {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: calc(var(--nav-h) + 32px) 20px 40px;
+      gap: 20px; position: relative; z-index: 1;
+    }
+    .demo-header { text-align: center; max-width: 540px; }
+    .demo-header h2 { font-size: 32px; font-weight: 900; }
+    .demo-header p  { color: var(--text2); margin-top: 8px; font-size: 15px; }
+
+    .demo-card {
+      width: 100%; max-width: 520px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+
+    /* quiz progress */
+    .dq-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .dq-counter { font-size: 13px; font-weight: 700; color: var(--text2); }
+    .dq-badge   { font-size: 11px; padding: 4px 10px; border-radius: 50px; background: rgba(0,212,255,0.15); color: var(--cyan); font-weight: 700; }
+    .dq-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+    .dq-progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--purple)); border-radius: 4px; transition: width .4s ease; }
+
+    .dq-question { font-size: 18px; font-weight: 700; line-height: 1.5; margin-bottom: 20px; }
+    .dq-chapter-tag {
+      display: inline-block; padding: 3px 10px; border-radius: 50px;
+      font-size: 11px; font-weight: 700; background: rgba(124,58,237,0.2); color: #c4b5fd;
+      margin-bottom: 12px;
+    }
+
+    .dq-choices { display: flex; flex-direction: column; gap: 10px; }
+    .dq-choice {
+      padding: 14px 18px; border-radius: 12px;
+      border: 1.5px solid var(--border); background: rgba(255,255,255,0.03);
+      color: var(--text); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all .15s; text-align: left;
+    }
+    .dq-choice:hover:not(:disabled) { border-color: var(--cyan); background: rgba(0,212,255,0.08); color: var(--cyan); }
+    .dq-choice.correct { border-color: var(--green) !important; background: rgba(16,185,129,0.12) !important; color: var(--green) !important; }
+    .dq-choice.wrong   { border-color: var(--red)   !important; background: rgba(239,68,68,0.10)  !important; color: var(--red)   !important; }
+    .dq-choice:disabled { cursor: default; }
+
+    .dq-feedback {
+      margin-top: 14px; padding: 12px 16px; border-radius: 12px;
+      font-size: 13px; font-weight: 700; display: none;
+    }
+    .dq-feedback.show-yes { display: block; background: rgba(16,185,129,0.12); color: var(--green); }
+    .dq-feedback.show-no  { display: block; background: rgba(239,68,68,0.10);  color: var(--red);   }
+
+    .dq-next {
+      margin-top: 16px; width: 100%; padding: 14px;
+      border-radius: 12px; border: none; display: none;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff; font-size: 15px; font-weight: 800; cursor: pointer;
+      transition: opacity .2s;
+    }
+    .dq-next.show { display: block; }
+    .dq-next:hover { opacity: .88; }
+
+    /* demo start / result screens */
+    .demo-start {
+      text-align: center; padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 20px;
+    }
+    .demo-start .big-emoji { font-size: 64px; }
+    .demo-start h3  { font-size: 22px; font-weight: 800; }
+    .demo-start p   { color: var(--text2); line-height: 1.7; font-size: 14px; max-width: 360px; }
+    .btn-start-quiz {
+      padding: 16px 40px; border-radius: 50px; border: none;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff; font-size: 16px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 8px 32px rgba(0,212,255,0.3); transition: all .2s;
+    }
+    .btn-start-quiz:hover { transform: translateY(-2px); }
+
+    /* result */
+    .demo-result { text-align: center; padding: 32px 24px; display: none; flex-direction: column; align-items: center; gap: 16px; }
+    .demo-result.show { display: flex; }
+    .score-ring {
+      width: 120px; height: 120px; border-radius: 50%;
+      background: conic-gradient(var(--cyan) var(--pct), rgba(255,255,255,0.08) 0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 900;
+      box-shadow: 0 0 40px rgba(0,212,255,0.2);
+    }
+    .result-breakdown { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .rb-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-radius: 10px; background: rgba(255,255,255,0.04); font-size: 13px; }
+    .rb-item .rb-q  { color: var(--text2); flex: 1; text-align: left; }
+    .rb-item .rb-ok { color: var(--green); font-weight: 800; }
+    .rb-item .rb-no { color: var(--red);   font-weight: 800; }
+    .cta-join {
+      padding: 14px 28px; border-radius: 12px; border: 1.5px solid var(--cyan);
+      background: rgba(0,212,255,0.08); color: var(--cyan); font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all .2s; text-align: center;
+    }
+    .btn-retry { padding: 12px 24px; border-radius: 50px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-retry:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+
+    /* loading spinner */
+    .loading-quiz { text-align: center; padding: 40px; color: var(--text2); font-size: 15px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ======================================================
+       RESEARCH SECTION
+    ====================================================== */
+    #tab-research {
+      padding: calc(var(--nav-h) + 36px) 40px 60px;
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .research-header { text-align: center; margin-bottom: 40px; }
+    .research-header h2 { font-size: 36px; font-weight: 900; }
+    .research-header p  { color: var(--text2); margin-top: 8px; font-size: 16px; }
+    .mock-badge {
+      display: inline-block; margin-top: 12px; padding: 5px 14px; border-radius: 50px;
+      background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3);
+      color: var(--gold); font-size: 12px; font-weight: 700;
+    }
+    .mock-badge.real { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: var(--green); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; text-align: center;
+    }
+    .kpi-card .kpi-val { font-size: 36px; font-weight: 900; }
+    .kpi-card .kpi-lbl { font-size: 12px; color: var(--text2); font-weight: 600; margin-top: 4px; }
+    .kpi-card .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+    .chart-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .chart-card h4 { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+    .chart-card p  { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+
+    .findings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .finding-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .finding-card .find-icon { font-size: 28px; }
+    .finding-card h4 { font-size: 14px; font-weight: 800; }
+    .finding-card p  { font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .finding-highlight { font-weight: 800; color: var(--cyan); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      #tab-hero { grid-template-columns: 1fr; padding: calc(var(--nav-h) + 24px) 20px 32px; }
+      .hero-right { grid-column: 1; grid-row: auto; flex-direction: row; flex-wrap: wrap; }
+      .timeline-strip { grid-column: 1; }
+      .charts-grid, .stats-grid { grid-template-columns: 1fr 1fr; }
+      .findings-grid { grid-template-columns: 1fr; }
+      #tab-research { padding: calc(var(--nav-h) + 24px) 16px 40px; }
+      .nav-university { display: none; }
+    }
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .hero-ctas { flex-direction: column; }
+      .btn-hero { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== ANIMATED BACKGROUND ========== -->
+<div class="bg-canvas" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- ========== NAV ========== -->
+<nav class="booth-nav">
+  <div class="nav-logo">🏥 MedVocab <span>BUU Research 2026</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('hero')">🏠 หน้าแรก</button>
+    <button class="nav-tab" onclick="switchTab('demo')">🎮 ลองเล่น</button>
+    <button class="nav-tab" onclick="switchTab('research')">📊 ผลวิจัย</button>
+  </div>
+  <div class="nav-university">คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</div>
+</nav>
+
+<!-- ================================================================
+     TAB 1 — HERO
+================================================================ -->
+<section id="tab-hero" class="tab-section active">
+
+  <div class="hero-main">
+    <div class="hero-badge">🔬 Randomized Controlled Trial · 2026</div>
+    <h1 class="hero-title">
+      เรียนรู้คำศัพท์<br>การแพทย์ ด้วย<br>
+      <span class="gradient-text">Spaced Repetition</span>
+    </h1>
+    <p class="hero-sub">
+      แอปพลิเคชันที่ช่วยให้นิสิตแพทย์จดจำคำศัพท์การแพทย์ได้ดีขึ้น
+      ผ่านการทดสอบซ้ำในช่วงเวลาที่เหมาะสม — วิจัยโดยนิสิตแพทย์ชั้นปีที่ 3
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-hero primary" onclick="switchTab('demo')">🎮 ลองเล่น Demo</button>
+      <button class="btn-hero secondary" onclick="switchTab('research')">📊 ดูผลวิจัย</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill"><div><div class="val" id="stat-students">—</div><div class="lbl">นิสิตที่เข้าร่วม</div></div></div>
+      <div class="stat-pill"><div><div class="val" id="stat-questions">—</div><div class="lbl">ข้อสอบในระบบ</div></div></div>
+      <div class="stat-pill"><div><div class="val">14</div><div class="lbl">วัน ระยะเวลาวิจัย</div></div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <!-- QR Card -->
+    <div class="qr-card">
+      <h4>📱 สแกนเพื่อลองเล่นบนมือถือ</h4>
+      <div id="qr-canvas"></div>
+      <p>สแกน QR Code เพื่อเปิด Demo<br>บนสมาร์ตโฟนของคุณได้เลย</p>
+    </div>
+
+    <!-- How it works -->
+    <div class="research-card">
+      <h4>วิธีการทำงาน</h4>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-dot" style="background:var(--cyan)">1</div>
+          <div>
+            <p>📋 Pre-test</p>
+            <small>ทดสอบความรู้คำศัพท์ก่อนเรียน</small>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot" style="background:var(--purple)">2</div>
+          <div>
+            <p>📝 Quiz วันที่ 1, 3, 7</p>
+            <small>กลุ่มทดลองทำ quiz ซ้ำ 3 ครั้ง</small>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot" style="background:var(--green)">3</div>
+          <div>
+            <p>🏁 Post-test วันที่ 14</p>
+            <small>วัด learning gain ทั้งสองกลุ่ม</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline strip -->
+  <div class="timeline-strip">
+    <h4>📅 Timeline การวิจัย</h4>
+    <div class="timeline-row">
+      <div class="tl-step">
+        <div class="tl-dot" style="background:rgba(0,212,255,0.2);border:2px solid var(--cyan)">📋</div>
+        <div class="tl-label">Pre-test</div>
+        <div class="tl-day">วันที่ 0</div>
+      </div>
+      <div class="tl-line"></div>
+      <div class="tl-step">
+        <div class="tl-dot" style="background:rgba(124,58,237,0.2);border:2px solid var(--purple)">📝</div>
+        <div class="tl-label">Quiz 1</div>
+        <div class="tl-day">วันที่ 1</div>
+      </div>
+      <div class="tl-line"></div>
+      <div class="tl-step">
+        <div class="tl-dot" style="background:rgba(124,58,237,0.2);border:2px solid var(--purple)">📝</div>
+        <div class="tl-label">Quiz 2</div>
+        <div class="tl-day">วันที่ 3</div>
+      </div>
+      <div class="tl-line"></div>
+      <div class="tl-step">
+        <div class="tl-dot" style="background:rgba(124,58,237,0.2);border:2px solid var(--purple)">📝</div>
+        <div class="tl-label">Quiz 3</div>
+        <div class="tl-day">วันที่ 7</div>
+      </div>
+      <div class="tl-line"></div>
+      <div class="tl-step">
+        <div class="tl-dot" style="background:rgba(16,185,129,0.2);border:2px solid var(--green)">🏁</div>
+        <div class="tl-label">Post-test</div>
+        <div class="tl-day">วันที่ 14</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================
+     TAB 2 — DEMO
+================================================================ -->
+<section id="tab-demo" class="tab-section" style="display:none">
+
+  <div class="demo-header">
+    <h2>🎮 ลองเล่น Demo</h2>
+    <p>ทดลองทำ Quiz 5 ข้อจากคำศัพท์การแพทย์จริง — ไม่ต้องสมัครสมาชิก</p>
+  </div>
+
+  <div class="demo-card" id="demo-card">
+    <!-- Start screen -->
+    <div class="demo-start" id="demo-start">
+      <div class="big-emoji">🩺</div>
+      <h3>ทดสอบความรู้คำศัพท์การแพทย์</h3>
+      <p>5 ข้อ จากคำศัพท์ที่ใช้ในการวิจัยจริง<br>เลือกคำตอบที่ถูกต้อง แล้วดูผลทันที</p>
+      <button class="btn-start-quiz" onclick="startDemo()">เริ่มทำ Quiz →</button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-quiz" id="demo-loading" style="display:none">
+      <div class="spinner"></div>
+      กำลังโหลดคำถาม...
+    </div>
+
+    <!-- Quiz screen -->
+    <div id="demo-quiz" style="display:none">
+      <div class="dq-header">
+        <span class="dq-counter" id="dq-counter">ข้อ 1 / 5</span>
+        <span class="dq-badge">Demo</span>
+      </div>
+      <div class="dq-progress"><div class="dq-progress-fill" id="dq-prog"></div></div>
+      <div class="dq-chapter-tag" id="dq-chapter">—</div>
+      <div class="dq-question" id="dq-text">—</div>
+      <div class="dq-choices" id="dq-choices"></div>
+      <div class="dq-feedback" id="dq-fb"></div>
+      <button class="dq-next" id="dq-next" onclick="demoNext()">ข้อต่อไป →</button>
+    </div>
+
+    <!-- Result screen -->
+    <div class="demo-result" id="demo-result">
+      <div class="score-ring" id="demo-ring" style="--pct:0%">0/5</div>
+      <div>
+        <h3 style="font-size:20px;font-weight:900;margin-bottom:4px" id="demo-result-title">ยอดเยี่ยม!</h3>
+        <p style="color:var(--text2);font-size:14px" id="demo-result-sub">คุณตอบถูก X จาก 5 ข้อ</p>
+      </div>
+      <div class="result-breakdown" id="demo-breakdown"></div>
+      <div class="cta-join">
+        🎓 สนใจเข้าร่วมการวิจัย?<br>
+        <small style="font-weight:500;font-size:12px">ติดต่อได้ที่บูทของเรา — นิสิตแพทย์ชั้นปีที่ 3</small>
+      </div>
+      <button class="btn-retry" onclick="retryDemo()">🔄 เล่นใหม่</button>
+    </div>
+  </div>
+
+  <!-- Fun fact card -->
+  <div class="demo-card" style="max-width:520px;text-align:center;padding:20px">
+    <p style="font-size:13px;color:var(--text2);line-height:1.7">
+      💡 <strong style="color:var(--cyan)">Spaced Repetition</strong> คืออะไร?<br>
+      เทคนิคการทบทวนในช่วงเวลาที่ขยายออกไปเรื่อยๆ
+      ช่วยให้ข้อมูลเข้าสู่ Long-term Memory ได้อย่างมีประสิทธิภาพ
+      — ใช้โดย Anki, Duolingo, และในงานวิจัยนี้
+    </p>
+  </div>
+
+</section>
+
+<!-- ================================================================
+     TAB 3 — RESEARCH RESULTS
+================================================================ -->
+<section id="tab-research" class="tab-section" style="display:none">
+
+  <div class="research-header">
+    <h2>📊 ผลการวิจัย</h2>
+    <p>MedVocab: ประสิทธิผลของ Spaced Repetition ต่อการจดจำคำศัพท์การแพทย์</p>
+    <div class="mock-badge" id="data-badge">⚠️ ข้อมูลจำลอง — จะอัปเดตเป็นข้อมูลจริงหลังวิจัยเสร็จสิ้น</div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="stats-grid">
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:var(--cyan)" id="kpi-n">40</div>
+      <div class="kpi-lbl">นิสิตที่เข้าร่วม</div>
+      <div class="kpi-sub">20 ทดลอง + 20 ควบคุม</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:var(--purple)" id="kpi-q">—</div>
+      <div class="kpi-lbl">ข้อสอบทั้งหมด</div>
+      <div class="kpi-sub">ครอบคลุมทุกบท</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:var(--green)" id="kpi-gain-exp">+7.9</div>
+      <div class="kpi-lbl">Learning Gain กลุ่มทดลอง</div>
+      <div class="kpi-sub">คะแนนเฉลี่ย Pre→Post</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:var(--gold)" id="kpi-gain-ctrl">+3.3</div>
+      <div class="kpi-lbl">Learning Gain กลุ่มควบคุม</div>
+      <div class="kpi-sub">คะแนนเฉลี่ย Pre→Post</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h4>📈 Pre-test vs Post-test</h4>
+      <p>เปรียบเทียบคะแนนเฉลี่ยก่อนและหลังการวิจัย</p>
+      <canvas id="chart-prepost" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>🎯 Learning Gain</h4>
+      <p>ความก้าวหน้า (Post − Pre) แยกตามกลุ่ม</p>
+      <canvas id="chart-gain" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Key Findings -->
+  <div class="findings-grid">
+    <div class="finding-card">
+      <div class="find-icon">🧪</div>
+      <h4>RCT Design</h4>
+      <p>การออกแบบ Randomized Controlled Trial ที่เป็นมาตรฐาน โดยแบ่งกลุ่มอย่างสุ่มจาก Student ID</p>
+    </div>
+    <div class="finding-card">
+      <div class="find-icon">📅</div>
+      <h4>Spaced Repetition</h4>
+      <p>กลุ่มทดลองได้รับการทบทวน <span class="finding-highlight">3 ครั้ง</span> ในวันที่ 1, 3, 7 ก่อน Post-test วันที่ 14</p>
+    </div>
+    <div class="finding-card">
+      <div class="find-icon">📊</div>
+      <h4>Learning Gain</h4>
+      <p>กลุ่มทดลองมีค่า Learning Gain สูงกว่ากลุ่มควบคุม — ผลเบื้องต้นสนับสนุน Spaced Repetition</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================
+     SCRIPT
+================================================================ -->
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://qftgvzsakmyugmspgqex.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_SvxKwCNAzg9PurBHRi1LUQ_4o-hBVJJ';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// NAV / TABS
+// display types: hero=grid, demo=flex, research=block
+// Using inline style to avoid CSS specificity conflicts
+// ============================================================
+const TAB_DISPLAY = { hero: 'grid', demo: 'flex', research: 'block' };
+
+function switchTab(name) {
+    // Hide all sections
+    document.querySelectorAll('.tab-section').forEach(s => {
+        s.style.display = 'none';
+        s.classList.remove('active');
+    });
+    // Deactivate all nav tabs
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+
+    // Show target section with correct display type
+    const section = document.getElementById('tab-' + name);
+    if (section) {
+        section.style.display = TAB_DISPLAY[name] || 'block';
+        section.classList.add('active');
+    }
+
+    // Activate nav tab button
+    const tabs = document.querySelectorAll('.nav-tab');
+    const map = { hero: 0, demo: 1, research: 2 };
+    if (tabs[map[name]]) tabs[map[name]].classList.add('active');
+
+    if (name === 'research') initResearchCharts();
+    window.scrollTo(0, 0);
+}
+
+// ============================================================
+// QR CODE  (uses qrcodejs library)
+// ============================================================
+function generateQR() {
+    const base = window.location.href.replace(/\/booth\.html.*$/, '');
+    const url  = base + '/index.html?demo=1';
+    const el   = document.getElementById('qr-canvas');
+
+    try {
+        new QRCode(el, {
+            text:       url,
+            width:      160,
+            height:     160,
+            colorDark:  '#003087',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    } catch(e) {
+        // Fallback: text URL if library not available
+        el.innerHTML = `<p style="color:var(--text2);font-size:10px;word-break:break-all;padding:8px">${url}</p>`;
+    }
+}
+
+// ============================================================
+// LIVE STATS (Hero)
+// ============================================================
+async function loadLiveStats() {
+    try {
+        const [{ count: studentCount }, { count: qCount }] = await Promise.all([
+            sb.from('students').select('*', { count: 'exact', head: true }),
+            sb.from('questions').select('*', { count: 'exact', head: true })
+        ]);
+        if (studentCount) document.getElementById('stat-students').textContent = studentCount;
+        if (qCount)       document.getElementById('stat-questions').textContent = qCount;
+        if (qCount)       document.getElementById('kpi-q').textContent = qCount;
+    } catch (e) {
+        // Fail silently — live stats are a nice-to-have
+    }
+}
+
+// ============================================================
+// DEMO QUIZ
+// ============================================================
+let demoQuestions  = [];
+let demoIdx        = 0;
+let demoResults    = [];
+let demoAnswered   = false;
+
+async function startDemo() {
+    document.getElementById('demo-start').style.display   = 'none';
+    document.getElementById('demo-loading').style.display = 'block';
+
+    try {
+        // Load 5 random questions from quiz days 1/3/7
+        const { data: qs, error } = await sb
+            .from('questions')
+            .select('id, question_text, choice_correct, choice_wrong1, choice_wrong2, choice_wrong3, chapters(chapter_number, title)')
+            .in('quiz_day', [1, 3, 7])
+            .limit(60);
+
+        if (error || !qs?.length) throw new Error('No questions');
+
+        // Shuffle and pick 5
+        const shuffled = qs.sort(() => Math.random() - 0.5).slice(0, 5);
+        demoQuestions = shuffled;
+        demoIdx       = 0;
+        demoResults   = [];
+
+        document.getElementById('demo-loading').style.display = 'none';
+        document.getElementById('demo-quiz').style.display    = 'block';
+        renderDemoQuestion();
+    } catch (e) {
+        document.getElementById('demo-loading').innerHTML =
+            '<p style="color:var(--red)">⚠️ ไม่สามารถโหลดคำถามได้<br><small style="color:var(--text2)">ลองใหม่อีกครั้ง หรือถามเจ้าของบูทได้เลยครับ</small></p>';
+    }
+}
+
+function renderDemoQuestion() {
+    const q     = demoQuestions[demoIdx];
+    const total = demoQuestions.length;
+    demoAnswered = false;
+
+    document.getElementById('dq-counter').textContent = `ข้อ ${demoIdx + 1} / ${total}`;
+    document.getElementById('dq-prog').style.width    = `${(demoIdx / total) * 100}%`;
+    document.getElementById('dq-chapter').textContent = q.chapters
+        ? `บทที่ ${q.chapters.chapter_number}: ${q.chapters.title}`
+        : 'คำศัพท์การแพทย์';
+    document.getElementById('dq-text').textContent    = q.question_text;
+
+    // Shuffle choices
+    const choices = [
+        { text: q.choice_correct, isCorrect: true  },
+        { text: q.choice_wrong1,  isCorrect: false },
+        { text: q.choice_wrong2,  isCorrect: false },
+        { text: q.choice_wrong3,  isCorrect: false },
+    ].filter(c => c.text).sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById('dq-choices');
+    container.innerHTML = '';
+    choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'dq-choice';
+        btn.textContent = c.text;
+        btn.onclick = () => pickDemoAnswer(btn, c.isCorrect, choices, q.question_text);
+        container.appendChild(btn);
+    });
+
+    // Reset feedback + next
+    const fb = document.getElementById('dq-fb');
+    fb.className = 'dq-feedback';
+    fb.textContent = '';
+    document.getElementById('dq-next').className = 'dq-next';
+}
+
+function pickDemoAnswer(btn, isCorrect, allChoices, questionText) {
+    if (demoAnswered) return;
+    demoAnswered = true;
+
+    // Disable all
+    document.querySelectorAll('.dq-choice').forEach(b => b.disabled = true);
+
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    if (!isCorrect) {
+        document.querySelectorAll('.dq-choice').forEach(b => {
+            if (b.textContent === demoQuestions[demoIdx].choice_correct)
+                b.classList.add('correct');
+        });
+    }
+
+    const fb = document.getElementById('dq-fb');
+    if (isCorrect) {
+        fb.className = 'dq-feedback show-yes';
+        fb.textContent = '✅ ถูกต้อง! ยอดเยี่ยม';
+    } else {
+        fb.className = 'dq-feedback show-no';
+        fb.textContent = `❌ ยังไม่ถูก — คำตอบที่ถูกคือ: ${demoQuestions[demoIdx].choice_correct}`;
+    }
+
+    demoResults.push({ question: questionText, isCorrect });
+
+    const isLast = demoIdx + 1 >= demoQuestions.length;
+    const nextBtn = document.getElementById('dq-next');
+    nextBtn.className = 'dq-next show';
+    nextBtn.textContent = isLast ? 'ดูผลคะแนน 🎯' : 'ข้อต่อไป →';
+}
+
+function demoNext() {
+    demoIdx++;
+    if (demoIdx < demoQuestions.length) {
+        renderDemoQuestion();
+    } else {
+        showDemoResult();
+    }
+}
+
+function showDemoResult() {
+    document.getElementById('demo-quiz').style.display = 'none';
+    const resultEl = document.getElementById('demo-result');
+    resultEl.classList.add('show');
+
+    const correct = demoResults.filter(r => r.isCorrect).length;
+    const total   = demoResults.length;
+    const pct     = Math.round((correct / total) * 100);
+
+    document.getElementById('demo-ring').style.setProperty('--pct', `${pct * 3.6}deg`);
+    document.getElementById('demo-ring').textContent = `${correct}/${total}`;
+
+    const titles = ['', 'ยังพัฒนาได้อีกนะ! 💪', 'ไม่เลวเลย! 👍', 'ดีมาก! 🌟', 'เก่งมาก! ⭐', 'ยอดเยี่ยม! 🏆'];
+    document.getElementById('demo-result-title').textContent = pct >= 80 ? '🏆 ยอดเยี่ยม!' : pct >= 60 ? '⭐ ดีมาก!' : '💪 ยังพัฒนาได้อีก!';
+    document.getElementById('demo-result-sub').textContent   = `คุณตอบถูก ${correct} จาก ${total} ข้อ (${pct}%)`;
+
+    const bd = document.getElementById('demo-breakdown');
+    bd.innerHTML = demoResults.map(r =>
+        `<div class="rb-item">
+          <span class="rb-q">${r.question.substring(0, 50)}${r.question.length > 50 ? '…' : ''}</span>
+          <span class="${r.isCorrect ? 'rb-ok' : 'rb-no'}">${r.isCorrect ? '✅' : '❌'}</span>
+        </div>`
+    ).join('');
+}
+
+function retryDemo() {
+    document.getElementById('demo-result').classList.remove('show');
+    document.getElementById('demo-start').style.display = 'flex';
+    document.getElementById('demo-start').style.flexDirection = 'column';
+    document.getElementById('demo-start').style.alignItems = 'center';
+}
+
+// ============================================================
+// RESEARCH CHARTS
+// ============================================================
+let chartsInit = false;
+
+async function initResearchCharts() {
+    if (chartsInit) return;
+    chartsInit = true;
+
+    // Try to load real data
+    let realData = null;
+    try {
+        const { data: students } = await sb
+            .from('students')
+            .select('student_id, scores')
+            .not('scores', 'is', null);
+
+        if (students?.length) {
+            const experimental = students.filter(s => {
+                const d = String(s.student_id).replace(/\D/g, '');
+                return d.length > 0 && parseInt(d) % 2 !== 0;
+            });
+            const control = students.filter(s => {
+                const d = String(s.student_id).replace(/\D/g, '');
+                return d.length > 0 && parseInt(d) % 2 === 0;
+            });
+
+            const avg = (arr, key) => {
+                const vals = arr.map(s => s.scores?.[key]).filter(v => v !== undefined && v !== null);
+                return vals.length ? (vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1) : null;
+            };
+
+            const expPre  = avg(experimental, 0);
+            const expPost = avg(experimental, 30);
+            const ctrlPre = avg(control, 0);
+            const ctrlPost = avg(control, 30);
+
+            if (expPre && expPost && ctrlPre && ctrlPost) {
+                realData = { expPre, expPost, ctrlPre, ctrlPost, n: students.length };
+            }
+        }
+    } catch(e) { /* use mock */ }
+
+    // Mock data fallback
+    const d = realData || {
+        expPre:  8.3, expPost:  16.2,
+        ctrlPre: 8.1, ctrlPost: 11.4,
+        n: 40, isMock: true
+    };
+
+    // Update KPIs
+    if (realData) {
+        document.getElementById('kpi-n').textContent = realData.n;
+        document.getElementById('kpi-gain-exp').textContent = '+' + (realData.expPost - realData.expPre).toFixed(1);
+        document.getElementById('kpi-gain-ctrl').textContent = '+' + (realData.ctrlPost - realData.ctrlPre).toFixed(1);
+        document.getElementById('data-badge').className = 'mock-badge real';
+        document.getElementById('data-badge').textContent = '✅ ข้อมูลจริงจากการวิจัย';
+    }
+
+    const chartDefaults = {
+        color: '#94a3b8',
+        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 13, weight: '600' } } } }
+    };
+
+    // Chart 1: Pre vs Post grouped bar
+    new Chart(document.getElementById('chart-prepost'), {
+        type: 'bar',
+        data: {
+            labels: ['Pre-test', 'Post-test'],
+            datasets: [
+                {
+                    label: '🧪 กลุ่มทดลอง',
+                    data: [d.expPre, d.expPost],
+                    backgroundColor: 'rgba(0,212,255,0.7)',
+                    borderColor: 'rgba(0,212,255,1)',
+                    borderWidth: 1.5, borderRadius: 6
+                },
+                {
+                    label: '📋 กลุ่มควบคุม',
+                    data: [d.ctrlPre, d.ctrlPost],
+                    backgroundColor: 'rgba(124,58,237,0.6)',
+                    borderColor: 'rgba(124,58,237,1)',
+                    borderWidth: 1.5, borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            ...chartDefaults,
+            responsive: true, maintainAspectRatio: true,
+            scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: {
+                    ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' },
+                    title: { display: true, text: 'คะแนนเฉลี่ย', color: '#64748b', font: { size: 11 } }
+                }
+            },
+            plugins: { ...chartDefaults.plugins }
+        }
+    });
+
+    // Chart 2: Learning Gain horizontal bar
+    const expGain  = (parseFloat(d.expPost)  - parseFloat(d.expPre)).toFixed(1);
+    const ctrlGain = (parseFloat(d.ctrlPost) - parseFloat(d.ctrlPre)).toFixed(1);
+
+    new Chart(document.getElementById('chart-gain'), {
+        type: 'bar',
+        data: {
+            labels: ['กลุ่มทดลอง', 'กลุ่มควบคุม'],
+            datasets: [{
+                label: 'Learning Gain (Post − Pre)',
+                data: [expGain, ctrlGain],
+                backgroundColor: [
+                    'rgba(16,185,129,0.7)',
+                    'rgba(245,158,11,0.6)'
+                ],
+                borderColor: ['rgba(16,185,129,1)', 'rgba(245,158,11,1)'],
+                borderWidth: 1.5, borderRadius: 8
+            }]
+        },
+        options: {
+            ...chartDefaults,
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: true,
+            scales: {
+                x: {
+                    ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' },
+                    title: { display: true, text: 'คะแนนที่เพิ่มขึ้น', color: '#64748b', font: { size: 11 } }
+                },
+                y: { ticks: { color: '#94a3b8', font: { size: 14, weight: '700' } }, grid: { display: false } }
+            },
+            plugins: {
+                ...chartDefaults.plugins,
+                datalabels: false
+            }
+        }
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    generateQR();
+    loadLiveStats();
+});
+</script>
+
+</body>
+</html>
