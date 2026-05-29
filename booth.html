@@ -93,11 +93,22 @@
     }
 
     /* ======================================================
-       TAB SECTIONS
-       NOTE: display is set via JS inline style to avoid
-       CSS specificity conflicts with section-specific layouts
+       SECTIONS — single page, all visible, smooth scroll
     ====================================================== */
-    .tab-section { min-height: 100vh; padding-top: var(--nav-h); }
+    .tab-section { min-height: 100vh; }
+
+    /* Default display per section */
+    #tab-demo     { display: flex; flex-direction: column; align-items: center;
+                    padding: calc(var(--nav-h) + 40px) 20px 60px; gap: 20px; position:relative; z-index:1; }
+    #tab-research { display: block;
+                    padding: calc(var(--nav-h) + 36px) 40px 60px; position:relative; z-index:1; max-width:1200px; margin:0 auto; }
+
+    /* Section divider */
+    .section-divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
 
     /* ======================================================
        HERO SECTION
@@ -231,12 +242,7 @@
     /* ======================================================
        DEMO SECTION
     ====================================================== */
-    #tab-demo {
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
-      padding: calc(var(--nav-h) + 32px) 20px 40px;
-      gap: 20px; position: relative; z-index: 1;
-    }
+    /* #tab-demo display/layout defined in sections block above */
     .demo-header { text-align: center; max-width: 540px; }
     .demo-header h2 { font-size: 32px; font-weight: 900; }
     .demo-header p  { color: var(--text2); margin-top: 8px; font-size: 15px; }
@@ -336,11 +342,7 @@
     /* ======================================================
        RESEARCH SECTION
     ====================================================== */
-    #tab-research {
-      padding: calc(var(--nav-h) + 36px) 40px 60px;
-      position: relative; z-index: 1;
-      max-width: 1200px; margin: 0 auto;
-    }
+    /* #tab-research display/layout defined in sections block above */
     .research-header { text-align: center; margin-bottom: 40px; }
     .research-header h2 { font-size: 36px; font-weight: 900; }
     .research-header p  { color: var(--text2); margin-top: 8px; font-size: 16px; }
@@ -381,12 +383,13 @@
 
     /* Responsive */
     @media (max-width: 900px) {
-      #tab-hero { grid-template-columns: 1fr; padding: calc(var(--nav-h) + 24px) 20px 32px; }
-      .hero-right { grid-column: 1; grid-row: auto; flex-direction: row; flex-wrap: wrap; }
+      #tab-hero     { grid-template-columns: 1fr; padding: calc(var(--nav-h) + 24px) 20px 40px; }
+      #tab-demo     { padding: calc(var(--nav-h) + 24px) 16px 40px; }
+      #tab-research { padding: calc(var(--nav-h) + 24px) 16px 40px; }
+      .hero-right   { grid-column: 1; grid-row: auto; flex-direction: row; flex-wrap: wrap; }
       .timeline-strip { grid-column: 1; }
       .charts-grid, .stats-grid { grid-template-columns: 1fr 1fr; }
       .findings-grid { grid-template-columns: 1fr; }
-      #tab-research { padding: calc(var(--nav-h) + 24px) 16px 40px; }
       .nav-university { display: none; }
     }
     @media (max-width: 600px) {
@@ -420,7 +423,7 @@
 <!-- ================================================================
      TAB 1 — HERO
 ================================================================ -->
-<section id="tab-hero" class="tab-section active">
+<section id="tab-hero" class="tab-section">
 
   <div class="hero-main">
     <div class="hero-badge">🔬 Randomized Controlled Trial · 2026</div>
@@ -521,7 +524,8 @@
 <!-- ================================================================
      TAB 2 — DEMO
 ================================================================ -->
-<section id="tab-demo" class="tab-section" style="display:none">
+<div class="section-divider"></div>
+<section id="tab-demo" class="tab-section">
 
   <div class="demo-header">
     <h2>🎮 ลองเล่น Demo</h2>
@@ -588,7 +592,8 @@
 <!-- ================================================================
      TAB 3 — RESEARCH RESULTS
 ================================================================ -->
-<section id="tab-research" class="tab-section" style="display:none">
+<div class="section-divider"></div>
+<section id="tab-research" class="tab-section">
 
   <div class="research-header">
     <h2>📊 ผลการวิจัย</h2>
@@ -667,35 +672,38 @@ const SUPABASE_KEY = 'sb_publishable_SvxKwCNAzg9PurBHRi1LUQ_4o-hBVJJ';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ============================================================
-// NAV / TABS
-// display types: hero=grid, demo=flex, research=block
-// Using inline style to avoid CSS specificity conflicts
+// NAV — smooth scroll to section
 // ============================================================
-const TAB_DISPLAY = { hero: 'grid', demo: 'flex', research: 'block' };
-
 function switchTab(name) {
-    // Hide all sections
-    document.querySelectorAll('.tab-section').forEach(s => {
-        s.style.display = 'none';
-        s.classList.remove('active');
-    });
-    // Deactivate all nav tabs
-    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-
-    // Show target section with correct display type
     const section = document.getElementById('tab-' + name);
-    if (section) {
-        section.style.display = TAB_DISPLAY[name] || 'block';
-        section.classList.add('active');
-    }
-
-    // Activate nav tab button
-    const tabs = document.querySelectorAll('.nav-tab');
-    const map = { hero: 0, demo: 1, research: 2 };
-    if (tabs[map[name]]) tabs[map[name]].classList.add('active');
-
+    if (!section) return;
+    const navH = document.querySelector('.booth-nav')?.offsetHeight || 64;
+    const top  = section.getBoundingClientRect().top + window.scrollY - navH - 12;
+    window.scrollTo({ top, behavior: 'smooth' });
     if (name === 'research') initResearchCharts();
-    window.scrollTo(0, 0);
+}
+
+// Highlight active nav tab based on scroll position
+function setupScrollSpy() {
+    const sections = ['hero', 'demo', 'research'];
+    const tabs     = document.querySelectorAll('.nav-tab');
+    const navH     = document.querySelector('.booth-nav')?.offsetHeight || 64;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                const name = e.target.id.replace('tab-', '');
+                const idx  = sections.indexOf(name);
+                tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+                if (name === 'research') initResearchCharts();
+            }
+        });
+    }, { rootMargin: `-${navH}px 0px -50% 0px`, threshold: 0 });
+
+    sections.forEach(n => {
+        const el = document.getElementById('tab-' + n);
+        if (el) observer.observe(el);
+    });
 }
 
 // ============================================================
@@ -739,6 +747,27 @@ async function loadLiveStats() {
 }
 
 // ============================================================
+// FALLBACK SAMPLE QUESTIONS (ใช้เมื่อ DB ยังไม่มีข้อมูล)
+// ============================================================
+const SAMPLE_QUESTIONS = [
+    { id:'s1', question_text:'Hypertension หมายถึงอะไร?',
+      choice_correct:'ความดันโลหิตสูง', choice_wrong1:'ความดันโลหิตต่ำ', choice_wrong2:'หัวใจเต้นเร็ว', choice_wrong3:'น้ำตาลในเลือดสูง',
+      chapters:{ chapter_number:1, title:'Cardiovascular' } },
+    { id:'s2', question_text:'Tachycardia คืออะไร?',
+      choice_correct:'หัวใจเต้นเร็วผิดปกติ (>100 ครั้ง/นาที)', choice_wrong1:'หัวใจเต้นช้าผิดปกติ', choice_wrong2:'ความดันโลหิตสูง', choice_wrong3:'หัวใจหยุดเต้น',
+      chapters:{ chapter_number:1, title:'Cardiovascular' } },
+    { id:'s3', question_text:'Dyspnea หมายความว่า?',
+      choice_correct:'หายใจลำบาก/หอบเหนื่อย', choice_wrong1:'เจ็บหน้าอก', choice_wrong2:'ไอเรื้อรัง', choice_wrong3:'กลืนลำบาก',
+      chapters:{ chapter_number:2, title:'Respiratory' } },
+    { id:'s4', question_text:'Hematuria คือ?',
+      choice_correct:'มีเลือดในปัสสาวะ', choice_wrong1:'มีเลือดในอุจจาระ', choice_wrong2:'ปัสสาวะไม่ออก', choice_wrong3:'ปวดท้องน้อย',
+      chapters:{ chapter_number:3, title:'Nephrology' } },
+    { id:'s5', question_text:'Jaundice (ดีซ่าน) เกิดจากอะไรเป็นหลัก?',
+      choice_correct:'บิลิรูบินในเลือดสูง ทำให้ผิวและตาเหลือง', choice_wrong1:'ฮีโมโกลบินต่ำ', choice_wrong2:'น้ำตาลในเลือดสูง', choice_wrong3:'โปรตีนในเลือดต่ำ',
+      chapters:{ chapter_number:4, title:'Hepatology' } },
+];
+
+// ============================================================
 // DEMO QUIZ
 // ============================================================
 let demoQuestions  = [];
@@ -750,29 +779,33 @@ async function startDemo() {
     document.getElementById('demo-start').style.display   = 'none';
     document.getElementById('demo-loading').style.display = 'block';
 
+    let questions = null;
+
+    // Try loading from DB first
     try {
-        // Load 5 random questions from quiz days 1/3/7
         const { data: qs, error } = await sb
             .from('questions')
             .select('id, question_text, choice_correct, choice_wrong1, choice_wrong2, choice_wrong3, chapters(chapter_number, title)')
             .in('quiz_day', [1, 3, 7])
             .limit(60);
 
-        if (error || !qs?.length) throw new Error('No questions');
+        if (!error && qs?.length >= 5) {
+            questions = qs.sort(() => Math.random() - 0.5).slice(0, 5);
+        }
+    } catch (_) { /* fall through to sample */ }
 
-        // Shuffle and pick 5
-        const shuffled = qs.sort(() => Math.random() - 0.5).slice(0, 5);
-        demoQuestions = shuffled;
-        demoIdx       = 0;
-        demoResults   = [];
-
-        document.getElementById('demo-loading').style.display = 'none';
-        document.getElementById('demo-quiz').style.display    = 'block';
-        renderDemoQuestion();
-    } catch (e) {
-        document.getElementById('demo-loading').innerHTML =
-            '<p style="color:var(--red)">⚠️ ไม่สามารถโหลดคำถามได้<br><small style="color:var(--text2)">ลองใหม่อีกครั้ง หรือถามเจ้าของบูทได้เลยครับ</small></p>';
+    // Fallback to sample questions
+    if (!questions) {
+        questions = [...SAMPLE_QUESTIONS].sort(() => Math.random() - 0.5);
     }
+
+    demoQuestions = questions;
+    demoIdx       = 0;
+    demoResults   = [];
+
+    document.getElementById('demo-loading').style.display = 'none';
+    document.getElementById('demo-quiz').style.display    = 'block';
+    renderDemoQuestion();
 }
 
 function renderDemoQuestion() {
@@ -1029,6 +1062,7 @@ async function initResearchCharts() {
 document.addEventListener('DOMContentLoaded', () => {
     generateQR();
     loadLiveStats();
+    setupScrollSpy();
 });
 </script>
 
