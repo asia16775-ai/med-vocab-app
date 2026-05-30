@@ -751,19 +751,19 @@ async function loadLiveStats() {
 // ============================================================
 const SAMPLE_QUESTIONS = [
     { id:'s1', question_text:'Hypertension หมายถึงอะไร?',
-      choice_correct:'ความดันโลหิตสูง', choice_wrong1:'ความดันโลหิตต่ำ', choice_wrong2:'หัวใจเต้นเร็ว', choice_wrong3:'น้ำตาลในเลือดสูง',
+      choice_correct:'ความดันโลหิตสูง', choice_wrong1:'ความดันโลหิตต่ำ', choice_wrong2:'หัวใจเต้นเร็วผิดปกติ', choice_wrong3:'น้ำตาลในเลือดสูง', choice_wrong4:'ไขมันในเลือดสูง',
       chapters:{ chapter_number:1, title:'Cardiovascular' } },
     { id:'s2', question_text:'Tachycardia คืออะไร?',
-      choice_correct:'หัวใจเต้นเร็วผิดปกติ (>100 ครั้ง/นาที)', choice_wrong1:'หัวใจเต้นช้าผิดปกติ', choice_wrong2:'ความดันโลหิตสูง', choice_wrong3:'หัวใจหยุดเต้น',
+      choice_correct:'หัวใจเต้นเร็วผิดปกติ (>100 ครั้ง/นาที)', choice_wrong1:'หัวใจเต้นช้าผิดปกติ', choice_wrong2:'ความดันโลหิตสูง', choice_wrong3:'หัวใจหยุดเต้น', choice_wrong4:'เส้นเลือดหัวใจตีบ',
       chapters:{ chapter_number:1, title:'Cardiovascular' } },
     { id:'s3', question_text:'Dyspnea หมายความว่า?',
-      choice_correct:'หายใจลำบาก/หอบเหนื่อย', choice_wrong1:'เจ็บหน้าอก', choice_wrong2:'ไอเรื้อรัง', choice_wrong3:'กลืนลำบาก',
+      choice_correct:'หายใจลำบาก/หอบเหนื่อย', choice_wrong1:'เจ็บหน้าอก', choice_wrong2:'ไอเรื้อรัง', choice_wrong3:'กลืนลำบาก', choice_wrong4:'เสมหะมาก',
       chapters:{ chapter_number:2, title:'Respiratory' } },
     { id:'s4', question_text:'Hematuria คือ?',
-      choice_correct:'มีเลือดในปัสสาวะ', choice_wrong1:'มีเลือดในอุจจาระ', choice_wrong2:'ปัสสาวะไม่ออก', choice_wrong3:'ปวดท้องน้อย',
+      choice_correct:'มีเลือดในปัสสาวะ', choice_wrong1:'มีเลือดในอุจจาระ', choice_wrong2:'ปัสสาวะไม่ออก', choice_wrong3:'ปวดท้องน้อย', choice_wrong4:'ปัสสาวะบ่อยผิดปกติ',
       chapters:{ chapter_number:3, title:'Nephrology' } },
     { id:'s5', question_text:'Jaundice (ดีซ่าน) เกิดจากอะไรเป็นหลัก?',
-      choice_correct:'บิลิรูบินในเลือดสูง ทำให้ผิวและตาเหลือง', choice_wrong1:'ฮีโมโกลบินต่ำ', choice_wrong2:'น้ำตาลในเลือดสูง', choice_wrong3:'โปรตีนในเลือดต่ำ',
+      choice_correct:'บิลิรูบินในเลือดสูง ทำให้ผิวและตาเหลือง', choice_wrong1:'ฮีโมโกลบินต่ำ', choice_wrong2:'น้ำตาลในเลือดสูง', choice_wrong3:'โปรตีนในเลือดต่ำ', choice_wrong4:'ธาตุเหล็กในเลือดสูง',
       chapters:{ chapter_number:4, title:'Hepatology' } },
 ];
 
@@ -785,7 +785,7 @@ async function startDemo() {
     try {
         const { data: qs, error } = await sb
             .from('questions')
-            .select('id, question_text, choice_correct, choice_wrong1, choice_wrong2, choice_wrong3, chapters(chapter_number, title)')
+            .select('id, question_text, choice_correct, choice_wrong1, choice_wrong2, choice_wrong3, choice_wrong4, chapters(chapter_number, title)')
             .in('quiz_day', [1, 3, 7])
             .limit(60);
 
@@ -826,6 +826,7 @@ function renderDemoQuestion() {
         { text: q.choice_wrong1,  isCorrect: false },
         { text: q.choice_wrong2,  isCorrect: false },
         { text: q.choice_wrong3,  isCorrect: false },
+        { text: q.choice_wrong4,  isCorrect: false },
     ].filter(c => c.text).sort(() => Math.random() - 0.5);
 
     const container = document.getElementById('dq-choices');
