@@ -618,7 +618,7 @@ p  { color:var(--text2); font-size:14px; line-height:1.6; }
             </p>
         </div>
         <button class="btn btn-primary" onclick="startDemoQuiz()">🎮 เริ่มทำ Quiz →</button>
-        <button class="btn btn-ghost" style="margin-top:8px" onclick="window.location.href=(new URLSearchParams(window.location.search).get('ref')==='present'?'present.html':'index.html')">กลับหน้าหลัก</button>
+        <button class="btn btn-ghost" style="margin-top:8px" onclick="window.location.href=(isDemoMode?'present.html':'index.html')">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -671,33 +671,91 @@ function isControlGroup(sid) {
 // ============================================================
 const isDemoMode = new URLSearchParams(window.location.search).get('demo') === '1';
 
+// English sample questions — used when DB has no questions yet
+const DEMO_SAMPLE_QUESTIONS = [
+    {
+        id:'d1', quiz_day:1, chapters:{chapter_number:1, title:'Medical Terminology'},
+        question_text:'Which term means "inflammation of the liver"?',
+        choice_correct:'Hepatitis',
+        choice_wrong1:'Nephritis', choice_wrong2:'Gastritis', choice_wrong3:'Arthritis', choice_wrong4:'Dermatitis',
+        exp_correct:'Hepat- = liver, -itis = inflammation. Hepatitis is inflammation of the liver.',
+        exp_wrong1:'Nephr- = kidney. Nephritis is inflammation of the kidney.',
+        exp_wrong2:'Gastr- = stomach. Gastritis is inflammation of the stomach.',
+        exp_wrong3:'Arthr- = joint. Arthritis is inflammation of a joint.',
+        exp_wrong4:'Derm- = skin. Dermatitis is inflammation of the skin.'
+    },
+    {
+        id:'d2', quiz_day:1, chapters:{chapter_number:1, title:'Medical Terminology'},
+        question_text:'What does the prefix "Brady-" mean?',
+        choice_correct:'Slow',
+        choice_wrong1:'Fast', choice_wrong2:'Large', choice_wrong3:'Small', choice_wrong4:'Pain',
+        exp_correct:'Brady- means slow. Example: Bradycardia = slow heart rate.',
+        exp_wrong1:'Tachy- means fast. Example: Tachycardia = fast heart rate.',
+        exp_wrong2:'Macro- means large.',
+        exp_wrong3:'Micro- means small.',
+        exp_wrong4:'Algia/Dynia means pain.'
+    },
+    {
+        id:'d3', quiz_day:3, chapters:{chapter_number:2, title:'Cardiovascular'},
+        question_text:'A patient with "Dyspnea" is experiencing difficulty with:',
+        choice_correct:'Breathing',
+        choice_wrong1:'Swallowing', choice_wrong2:'Speaking', choice_wrong3:'Walking', choice_wrong4:'Vision',
+        exp_correct:'Dyspnea (dys- = difficult, -pnea = breathing) means shortness of breath or difficulty breathing.',
+        exp_wrong1:'Difficulty swallowing is called Dysphagia.',
+        exp_wrong2:'Difficulty speaking is called Dysphasia or Dysarthria.',
+        exp_wrong3:'Difficulty walking is called Dysbasia.',
+        exp_wrong4:'Visual difficulty is called Diplopia or Blurred vision.'
+    },
+    {
+        id:'d4', quiz_day:3, chapters:{chapter_number:2, title:'Cardiovascular'},
+        question_text:'The suffix "-ectomy" means:',
+        choice_correct:'Surgical removal',
+        choice_wrong1:'Surgical repair', choice_wrong2:'Surgical incision', choice_wrong3:'Visual examination', choice_wrong4:'Disease of',
+        exp_correct:'-ectomy means surgical removal. Example: Appendectomy = surgical removal of the appendix.',
+        exp_wrong1:'-plasty means surgical repair. Example: Rhinoplasty = surgical repair of the nose.',
+        exp_wrong2:'-otomy means surgical incision. Example: Tracheotomy = incision into the trachea.',
+        exp_wrong3:'-scopy means visual examination. Example: Endoscopy.',
+        exp_wrong4:'-pathy means disease of. Example: Neuropathy.'
+    },
+    {
+        id:'d5', quiz_day:7, chapters:{chapter_number:3, title:'Clinical Signs'},
+        question_text:'Which term describes an abnormally fast heart rate (>100 bpm)?',
+        choice_correct:'Tachycardia',
+        choice_wrong1:'Bradycardia', choice_wrong2:'Arrhythmia', choice_wrong3:'Hypertension', choice_wrong4:'Syncope',
+        exp_correct:'Tachycardia (Tachy- = fast, -cardia = heart) means a heart rate greater than 100 beats per minute.',
+        exp_wrong1:'Bradycardia (Brady- = slow) means a heart rate less than 60 bpm.',
+        exp_wrong2:'Arrhythmia means irregular heart rhythm, not necessarily fast.',
+        exp_wrong3:'Hypertension means high blood pressure, not related to heart rate.',
+        exp_wrong4:'Syncope means fainting/temporary loss of consciousness.'
+    }
+];
+
 async function startDemoQuiz() {
     showScreen('screen-loading');
+    let questions = null;
     try {
         const { data: qs, error } = await sb
             .from('questions')
             .select('id, question_text, choice_correct, choice_wrong1, choice_wrong2, choice_wrong3, choice_wrong4, exp_correct, exp_wrong1, exp_wrong2, exp_wrong3, exp_wrong4, chapters(chapter_number, title)')
             .in('quiz_day', [1, 3, 7])
             .limit(60);
-        if (error || !qs?.length) throw new Error('no questions');
+        if (!error && qs?.length >= 5) {
+            questions = qs.sort(() => Math.random() - 0.5).slice(0, 5);
+        }
+    } catch(e) { /* fall through to sample */ }
 
-        quizQuestions  = qs.sort(() => Math.random() - 0.5).slice(0, 5);
-        currentQIndex  = 0;
-        questionResults = [];
-        currentDay     = 1;
-        isPretest      = false;
-        isPosttest     = false;
-        currentSessionId = generateUUID();
-        // Demo: fake student
-        currentStudent = { student_id: 'DEMO', name: 'Demo', is_test_mode: true };
+    quizQuestions  = questions || [...DEMO_SAMPLE_QUESTIONS].sort(() => Math.random() - 0.5);
+    currentQIndex  = 0;
+    questionResults = [];
+    currentDay     = 1;
+    isPretest      = false;
+    isPosttest     = false;
+    currentSessionId = generateUUID();
+    currentStudent = { student_id: 'DEMO', name: 'Demo', is_test_mode: true };
 
-        document.getElementById('quiz-day-badge').textContent = '🎮 Demo';
-        showScreen('screen-quiz');
-        renderQuestion();
-    } catch(e) {
-        alert('ไม่สามารถโหลดคำถามได้ กรุณาลองใหม่');
-        showScreen('screen-demo');
-    }
+    document.getElementById('quiz-day-badge').textContent = '🎮 Demo';
+    showScreen('screen-quiz');
+    renderQuestion();
 }
 
 // ============================================================
@@ -1368,7 +1426,7 @@ async function showResultScreen(correctCount) {
                 <p style="font-size:14px;font-weight:800;color:var(--primary);margin-bottom:10px">🎓 สนใจเข้าร่วมการวิจัย?</p>
                 <p style="font-size:13px;line-height:1.6;color:var(--text2)">ติดต่อได้ที่บูทของเรา<br>คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</p>
                 <button class="btn btn-primary" style="margin-top:14px" onclick="showScreen('screen-demo')">🔄 ลองเล่นอีกครั้ง</button>
-                <button class="btn btn-ghost" style="margin-top:8px" onclick="window.location.href=(new URLSearchParams(window.location.search).get('ref')==='present'?'present.html':'index.html')">← กลับหน้าหลัก</button>
+                <button class="btn btn-ghost" style="margin-top:8px" onclick="window.location.href='present.html'">← กลับหน้าหลัก</button>
             </div>`;
         if (btnsCard) btnsCard.style.display = 'none';
     } else {
