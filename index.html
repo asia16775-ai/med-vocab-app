@@ -755,7 +755,7 @@ async function startDemoQuiz() {
 
     document.getElementById('quiz-day-badge').textContent = '🎮 Demo';
     showScreen('screen-quiz');
-    showQuestion();
+    setTimeout(showQuestion, 50);
 }
 
 // ============================================================
