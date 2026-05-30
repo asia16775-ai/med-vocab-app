@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedVocab — Research Presentation 2569</title>
+<style>
+/* ======================================================
+   RESET & BASE
+====================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue:    #003087;
+  --blue-l:  #0051CC;
+  --blue-xl: #e8f0fb;
+  --gold:    #C9A84C;
+  --gold-l:  #f5e9c8;
+  --green:   #1a7a4a;
+  --green-l: #e6f5ee;
+  --red:     #c0392b;
+  --text:    #1a1a2e;
+  --text2:   #4a5568;
+  --text3:   #718096;
+  --border:  #d1dce8;
+  --bg:      #f5f8fd;
+  --white:   #ffffff;
+  --radius:  16px;
+  --nav-h:   60px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+/* ======================================================
+   STICKY NAV
+====================================================== */
+.pnav {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; z-index: 100; gap: 16px;
+}
+.pnav-logo {
+  font-size: 17px; font-weight: 900; color: var(--blue);
+  white-space: nowrap; letter-spacing: -0.3px;
+}
+.pnav-logo span { color: var(--gold); }
+.pnav-links {
+  display: flex; gap: 4px; flex-wrap: nowrap; overflow-x: auto;
+}
+.pnav-link {
+  padding: 6px 14px; border-radius: 50px; font-size: 13px; font-weight: 600;
+  color: var(--text2); cursor: pointer; border: none; background: transparent;
+  white-space: nowrap; transition: all .2s;
+}
+.pnav-link:hover, .pnav-link.active { background: var(--blue-xl); color: var(--blue); }
+.pnav-demo {
+  padding: 8px 18px; border-radius: 50px; font-size: 13px; font-weight: 700;
+  background: var(--blue); color: white; border: none; cursor: pointer;
+  white-space: nowrap; text-decoration: none; display: inline-block;
+  transition: all .2s;
+}
+.pnav-demo:hover { background: var(--blue-l); transform: translateY(-1px); }
+
+/* ======================================================
+   SECTIONS
+====================================================== */
+.psec {
+  min-height: 100vh;
+  padding: calc(var(--nav-h) + 60px) 60px 60px;
+  display: flex; flex-direction: column; justify-content: center;
+  position: relative;
+}
+.psec:nth-child(even) { background: var(--white); }
+.psec:nth-child(odd)  { background: var(--bg); }
+.psec-inner { max-width: 1000px; margin: 0 auto; width: 100%; }
+
+.sec-num {
+  font-size: 12px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 8px;
+}
+.sec-title {
+  font-size: clamp(28px, 3vw, 42px); font-weight: 900;
+  color: var(--blue); line-height: 1.2; margin-bottom: 32px;
+}
+.sec-title.en { font-size: clamp(18px, 2vw, 26px); color: var(--blue-l); }
+
+/* ======================================================
+   COVER SECTION
+====================================================== */
+#s-cover {
+  background: linear-gradient(150deg, #001a5c 0%, #003087 50%, #004db3 100%);
+  color: white; min-height: 100vh;
+  padding: calc(var(--nav-h) + 60px) 60px 60px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center;
+}
+.cover-inner { max-width: 900px; }
+.cover-year {
+  display: inline-block; padding: 6px 20px; border-radius: 50px;
+  background: rgba(201,168,76,0.2); border: 1px solid rgba(201,168,76,0.5);
+  color: var(--gold); font-size: 13px; font-weight: 700;
+  letter-spacing: 1px; margin-bottom: 28px;
+}
+.cover-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 18px; border-radius: 50px; font-size: 13px; font-weight: 700;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+  color: #fff; margin-bottom: 28px; margin-left: 8px;
+}
+.cover-title-th {
+  font-size: clamp(22px, 2.8vw, 36px); font-weight: 900; line-height: 1.4;
+  color: #fff; margin-bottom: 16px;
+}
+.cover-title-en {
+  font-size: clamp(14px, 1.6vw, 20px); font-weight: 600; line-height: 1.5;
+  color: rgba(255,255,255,0.75); margin-bottom: 40px; font-style: italic;
+}
+.cover-divider { width: 60px; height: 3px; background: var(--gold); margin: 0 auto 40px; border-radius: 2px; }
+.cover-univ {
+  font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.85);
+  letter-spacing: 0.5px;
+}
+.cover-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 6px; }
+
+/* ======================================================
+   TEAM SECTION
+====================================================== */
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 8px;
+}
+.team-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px;
+  border-left: 4px solid var(--blue);
+}
+.team-card.gold { border-left-color: var(--gold); }
+.team-card h4 {
+  font-size: 12px; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 10px;
+}
+.team-card .advisor-name {
+  font-size: 18px; font-weight: 800; color: var(--blue);
+}
+.researcher-list { display: flex; flex-direction: column; gap: 8px; }
+.researcher-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.researcher-item:last-child { border-bottom: none; }
+.r-id {
+  font-size: 12px; font-weight: 700; color: var(--text3);
+  background: var(--blue-xl); padding: 2px 8px; border-radius: 6px;
+  white-space: nowrap;
+}
+.r-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.r-pct  { font-size: 12px; color: var(--text3); margin-left: auto; white-space: nowrap; }
+
+/* ======================================================
+   OVERVIEW CHIPS
+====================================================== */
+.info-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.info-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 50px;
+  font-size: 14px; font-weight: 700;
+}
+.chip-blue   { background: var(--blue-xl); color: var(--blue); border: 1px solid #b8cef5; }
+.chip-gold   { background: var(--gold-l);  color: #7a5a00;     border: 1px solid #e8d5a0; }
+.chip-green  { background: var(--green-l); color: var(--green); border: 1px solid #a8d5bb; }
+
+.keyword-wrap { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.keyword {
+  padding: 6px 16px; border-radius: 50px; font-size: 14px; font-weight: 700;
+  background: var(--blue); color: white;
+}
+
+/* ======================================================
+   BACKGROUND CARDS
+====================================================== */
+.bg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.bg-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+}
+.bg-card h3 { font-size: 16px; font-weight: 800; color: var(--blue); margin-bottom: 12px; }
+.bg-card p  { font-size: 15px; color: var(--text2); line-height: 1.7; }
+.bg-problem {
+  background: linear-gradient(135deg, #fff5f5, #fff);
+  border-left: 4px solid var(--red);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+}
+.bg-problem h3 { color: var(--red); font-size: 18px; margin-bottom: 10px; }
+.bg-problem p  { font-size: 15px; color: var(--text2); line-height: 1.7; }
+.bg-solution {
+  background: linear-gradient(135deg, var(--blue-xl), #fff);
+  border-left: 4px solid var(--blue);
+  border-radius: var(--radius); padding: 24px;
+}
+.bg-solution h3 { color: var(--blue); font-size: 18px; margin-bottom: 10px; }
+.bg-solution p  { font-size: 15px; color: var(--text2); line-height: 1.7; }
+
+/* ======================================================
+   OBJECTIVES
+====================================================== */
+.obj-list { display: flex; flex-direction: column; gap: 16px; }
+.obj-item {
+  display: flex; gap: 20px; align-items: flex-start;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+}
+.obj-num {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: var(--blue); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 900;
+}
+.obj-text { font-size: 16px; line-height: 1.7; color: var(--text); }
+.obj-method {
+  display: inline-block; margin-top: 8px; padding: 4px 12px; border-radius: 6px;
+  background: var(--blue-xl); color: var(--blue); font-size: 13px; font-weight: 700;
+}
+
+/* ======================================================
+   SCOPE
+====================================================== */
+.scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+.scope-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px;
+}
+.scope-card h4 {
+  font-size: 13px; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 12px;
+}
+.scope-card p, .scope-card li { font-size: 15px; color: var(--text2); line-height: 1.7; }
+.scope-card ul { padding-left: 18px; }
+
+/* Timeline */
+.timeline-wrap {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 32px;
+}
+.timeline-wrap h4 {
+  font-size: 13px; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 20px;
+}
+.tl-row { display: flex; align-items: center; gap: 0; }
+.tl-step { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+.tl-dot {
+  width: 50px; height: 50px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 900; border: 2px solid;
+}
+.tl-dot.blue  { background: var(--blue-xl); border-color: var(--blue); }
+.tl-dot.gold  { background: var(--gold-l);  border-color: var(--gold); }
+.tl-dot.green { background: var(--green-l); border-color: var(--green); }
+.tl-line { flex: 1; height: 2px; background: var(--border); }
+.tl-label { font-size: 12px; font-weight: 800; color: var(--text2); text-align: center; }
+.tl-day   { font-size: 11px; color: var(--text3); }
+
+/* Group labels */
+.group-split {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 4px;
+}
+.group-box {
+  border-radius: var(--radius); padding: 12px 16px; text-align: center;
+  font-size: 14px; font-weight: 700;
+}
+.group-exp  { background: var(--blue-xl); color: var(--blue); border: 1px solid #b8cef5; }
+.group-ctrl { background: var(--gold-l);  color: #7a5a00;     border: 1px solid #e8d5a0; }
+
+/* ======================================================
+   RCT DIAGRAM
+====================================================== */
+.rct-wrap {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px;
+}
+.rct-row { display: flex; align-items: flex-start; gap: 0; justify-content: center; }
+.rct-box {
+  border-radius: 12px; padding: 16px 20px; text-align: center;
+  font-size: 14px; font-weight: 700; min-width: 160px;
+}
+.rct-box.start  { background: var(--blue);    color: white; }
+.rct-box.pretest{ background: var(--blue-xl); color: var(--blue); border: 2px solid var(--blue); }
+.rct-box.random { background: var(--gold-l);  color: #7a5a00; border: 2px solid var(--gold); }
+.rct-box.exp    { background: var(--blue-xl); color: var(--blue); border: 2px solid var(--blue); }
+.rct-box.ctrl   { background: #fff3e8;        color: #7a4000; border: 2px dashed #e8a050; }
+.rct-box.post   { background: var(--green-l); color: var(--green); border: 2px solid var(--green); }
+.rct-box.result { background: var(--green);   color: white; }
+.rct-arrow { font-size: 22px; color: var(--text3); padding: 0 8px; align-self: center; }
+.rct-v { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.rct-branch {
+  display: flex; gap: 24px; align-items: flex-start; justify-content: center;
+  margin: 4px 0;
+}
+.rct-v-arrow { font-size: 20px; color: var(--text3); line-height: 1; }
+.rct-box small { display: block; font-size: 12px; font-weight: 500; opacity: 0.8; margin-top: 4px; }
+
+/* ======================================================
+   THEORY
+====================================================== */
+.theory-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.theory-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.theory-icon { font-size: 36px; }
+.theory-card h3 { font-size: 16px; font-weight: 800; color: var(--blue); }
+.theory-card p  { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+/* Forgetting curve visual */
+.curve-wrap {
+  background: var(--blue-xl); border-radius: 12px;
+  padding: 20px; margin-top: 12px; text-align: center;
+}
+.curve-steps { display: flex; gap: 8px; align-items: flex-end; justify-content: center; }
+.curve-step  { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.curve-bar   { width: 36px; border-radius: 6px 6px 0 0; background: var(--blue); }
+.curve-day   { font-size: 11px; color: var(--text3); font-weight: 700; }
+.curve-pct   { font-size: 11px; color: var(--blue); font-weight: 800; }
+
+/* Hypothesis */
+.hypo-box {
+  background: linear-gradient(135deg, var(--blue), var(--blue-l));
+  color: white; border-radius: var(--radius); padding: 32px 36px;
+  margin-top: 24px;
+}
+.hypo-box h3 { font-size: 18px; font-weight: 800; margin-bottom: 16px; color: rgba(255,255,255,0.7); }
+.hypo-text { font-size: 18px; font-weight: 700; line-height: 1.7; }
+.hypo-stat  { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 14px; color: rgba(255,255,255,0.75); }
+
+/* ======================================================
+   CTA SECTION
+====================================================== */
+#s-cta {
+  background: linear-gradient(150deg, #001a5c 0%, #003087 100%);
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 80px 40px;
+}
+.cta-title { font-size: clamp(28px, 3vw, 44px); font-weight: 900; color: white; margin-bottom: 12px; }
+.cta-sub { font-size: 18px; color: rgba(255,255,255,0.65); margin-bottom: 36px; }
+.cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn-cta-primary {
+  padding: 16px 40px; border-radius: 14px; border: none;
+  background: var(--gold); color: #3a2a00; font-size: 17px; font-weight: 800;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  transition: all .2s;
+}
+.btn-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,168,76,0.4); }
+.btn-cta-secondary {
+  padding: 16px 40px; border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.3); background: transparent;
+  color: white; font-size: 17px; font-weight: 700; cursor: pointer;
+  text-decoration: none; display: inline-block; transition: all .2s;
+}
+.btn-cta-secondary:hover { background: rgba(255,255,255,0.1); }
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+@media (max-width: 900px) {
+  .psec { padding: calc(var(--nav-h) + 32px) 24px 48px; }
+  .team-grid, .bg-grid, .scope-grid, .theory-grid { grid-template-columns: 1fr; }
+  .pnav { padding: 0 16px; }
+  .pnav-links { display: none; }
+}
+@media (max-width: 600px) {
+  .tl-label, .tl-day { font-size: 10px; }
+  .tl-dot { width: 38px; height: 38px; font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================================================
+     STICKY NAV
+====================================================== -->
+<nav class="pnav">
+  <div class="pnav-logo">🏥 Med<span>Vocab</span></div>
+  <div class="pnav-links">
+    <button class="pnav-link" onclick="goTo('s-cover')">หน้าแรก</button>
+    <button class="pnav-link" onclick="goTo('s-team')">ทีมวิจัย</button>
+    <button class="pnav-link" onclick="goTo('s-background')">ที่มา</button>
+    <button class="pnav-link" onclick="goTo('s-objectives')">วัตถุประสงค์</button>
+    <button class="pnav-link" onclick="goTo('s-scope')">ขอบเขต</button>
+    <button class="pnav-link" onclick="goTo('s-method')">ระเบียบวิธี</button>
+    <button class="pnav-link" onclick="goTo('s-theory')">ทฤษฎี</button>
+  </div>
+  <a class="pnav-demo" href="booth.html">🎮 Demo App →</a>
+</nav>
+
+<!-- ======================================================
+     1. COVER
+====================================================== -->
+<section class="psec" id="s-cover" style="background:linear-gradient(150deg,#001a5c 0%,#003087 50%,#004db3 100%);color:white;align-items:center;text-align:center;">
+  <div class="cover-inner">
+    <div>
+      <span class="cover-year">ปีงบประมาณ พ.ศ. 2569</span>
+      <span class="cover-badge">🔬 Randomized Controlled Trial</span>
+    </div>
+
+    <h1 class="cover-title-th">
+      ประสิทธิผลของระบบทบทวนคำศัพท์ทางการแพทย์แบบเว้นระยะห่าง<br>
+      ที่สร้างโดยปัญญาประดิษฐ์ Gemini ต่อความสามารถในการจดจำ<br>
+      คำศัพท์ทางการแพทย์ระยะยาวของนิสิตแพทย์ชั้นปีที่ 3
+    </h1>
+
+    <div class="cover-divider"></div>
+
+    <p class="cover-title-en">
+      Efficacy of a Gemini AI-Generated Fixed-Interval Spaced Repetition System on<br>
+      Long-Term Medical Terminology Retention Among Third-Year Medical Students:<br>
+      A Randomized Controlled Trial
+    </p>
+
+    <p class="cover-univ">🏫 คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</p>
+    <p class="cover-sub">Faculty of Medicine, Burapha University</p>
+  </div>
+</section>
+
+<!-- ======================================================
+     2. TEAM
+====================================================== -->
+<section class="psec" id="s-team">
+  <div class="psec-inner">
+    <div class="sec-num">Section 02</div>
+    <h2 class="sec-title">👥 ผู้รับผิดชอบโครงการ</h2>
+
+    <div class="team-grid">
+      <!-- Advisor + PI -->
+      <div class="team-card gold">
+        <h4>🎓 ที่ปรึกษา / หัวหน้าโครงการวิจัย</h4>
+        <div class="advisor-name">อ.พญ.ศศิกานต์ ลีละวงศ์</div>
+        <div style="margin-top:8px;font-size:14px;color:var(--text3)">คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</div>
+      </div>
+
+      <!-- Info -->
+      <div class="team-card">
+        <h4>📋 ข้อมูลโครงการ</h4>
+        <div class="info-row" style="margin-bottom:0">
+          <span class="info-chip chip-blue">📚 การวิจัยประยุกต์</span>
+          <span class="info-chip chip-gold">🏥 Medical Education</span>
+          <span class="info-chip chip-green">🤖 AI-assisted Learning</span>
+        </div>
+      </div>
+
+      <!-- Researchers - spans full width -->
+      <div class="team-card" style="grid-column:1/-1">
+        <h4>🔬 ผู้ร่วมวิจัย (นิสิตแพทย์ชั้นปีที่ 3)</h4>
+        <div class="researcher-list">
+          <div class="researcher-item"><span class="r-id">67200031</span><span class="r-name">จารุภา สายบัว</span><span class="r-pct">14.28%</span></div>
+          <div class="researcher-item"><span class="r-id">67200032</span><span class="r-name">โชติกา รัตนวุฒิกร</span><span class="r-pct">14.28%</span></div>
+          <div class="researcher-item"><span class="r-id">67200033</span><span class="r-name">โชติวิทย์ เรือนชัย</span><span class="r-pct">14.28%</span></div>
+          <div class="researcher-item"><span class="r-id">67200034</span><span class="r-name">ฐณัชญ์พร ศรีราชยา</span><span class="r-pct">14.28%</span></div>
+          <div class="researcher-item"><span class="r-id">67200035</span><span class="r-name">ณภรรษสร สอนกล้า</span><span class="r-pct">14.28%</span></div>
+          <div class="researcher-item"><span class="r-id">67200036</span><span class="r-name">ณภัทร อัครธรรมโชติ</span><span class="r-pct">14.28%</span></div>
+          <div class="researcher-item"><span class="r-id">67200037</span><span class="r-name">ณัฐชานันท์ ขันตี</span><span class="r-pct">14.28%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keywords -->
+    <div style="margin-top:28px">
+      <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:12px">🔑 Keywords</div>
+      <div class="keyword-wrap">
+        <span class="keyword">Spaced Repetition</span>
+        <span class="keyword">Medical Terminology</span>
+        <span class="keyword">AI-assisted Learning</span>
+        <span class="keyword">Memory Retention</span>
+        <span class="keyword">Medical Education</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     3. BACKGROUND
+====================================================== -->
+<section class="psec" id="s-background">
+  <div class="psec-inner">
+    <div class="sec-num">Section 03</div>
+    <h2 class="sec-title">💡 ความสำคัญและที่มาของปัญหา</h2>
+
+    <div class="bg-problem">
+      <h3>⚠️ ปัญหา</h3>
+      <p>
+        นิสิตแพทย์ชั้นปีที่ 3 ต้องเผชิญกับภาระการเรียนรู้คำศัพท์เฉพาะทางจำนวนมากในระยะเวลาอันสั้น
+        ครอบคลุมทั้งศัพท์กายวิภาคศาสตร์ สรีรวิทยา พยาธิวิทยา และเภสัชวิทยา
+        การไม่สามารถจดจำคำศัพท์ได้อย่างแม่นยำและยั่งยืน ส่งผลโดยตรงต่อความเข้าใจในเนื้อหาวิชาชีพ
+        และการสื่อสารในสภาพแวดล้อมทางคลินิกในอนาคต
+      </p>
+    </div>
+
+    <div class="bg-grid">
+      <div class="bg-card">
+        <h3>📈 Spaced Repetition</h3>
+        <p>
+          หลักการทางจิตวิทยาการศึกษาที่ได้รับการรับรองเชิงประจักษ์ อ้างอิง
+          <strong>Forgetting Curve ของ Ebbinghaus</strong> — ความจำเสื่อมถอยตามเวลา
+          แต่สามารถชะลอได้ด้วยการทบทวนในช่วงเวลาที่เหมาะสม
+          งานวิจัยในกลุ่มนิสิตสาขาวิทยาศาสตร์สุขภาพพบว่าช่วยเพิ่มคะแนนความจำระยะยาว
+          ได้อย่างมีนัยสำคัญ
+        </p>
+      </div>
+      <div class="bg-card">
+        <h3>🤖 AI (Gemini) ในการศึกษา</h3>
+        <p>
+          Gemini AI ของ Google มีความสามารถในการสร้างโจทย์ฝึกหัดจากเนื้อหาที่กำหนด
+          วิเคราะห์รูปแบบการเรียน และจัดลำดับเนื้อหาตามหลักการทางการศึกษา
+          ช่วยลดภาระผู้สอนในการสร้างเนื้อหา และเพิ่มความสม่ำเสมอในการทบทวน
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-solution" style="margin-top:20px">
+      <h3>✅ ช่องว่างงานวิจัย → MedVocab</h3>
+      <p>
+        แม้นิสิตแพทย์ปัจจุบันจะใช้ AI เป็นเครื่องมือช่วยเรียนอย่างแพร่หลาย
+        แต่<strong>ยังขาดงานวิจัยที่ศึกษาอย่างเป็นระบบ</strong>ว่าการใช้ AI สร้างระบบ Spaced Repetition
+        มีผลต่อ Memory Retention แตกต่างจากการไม่ใช้หรือไม่ โดยเฉพาะในบริบทของนิสิตแพทย์ไทย
+        — งานวิจัยนี้จึงพัฒนาแอปพลิเคชัน <strong>MedVocab</strong> เพื่อทดสอบประสิทธิผลในรูปแบบ RCT
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     4. OBJECTIVES
+====================================================== -->
+<section class="psec" id="s-objectives">
+  <div class="psec-inner">
+    <div class="sec-num">Section 04</div>
+    <h2 class="sec-title">🎯 วัตถุประสงค์ของโครงการวิจัย</h2>
+
+    <div class="obj-list">
+      <div class="obj-item">
+        <div class="obj-num">1</div>
+        <div>
+          <div class="obj-text">
+            เปรียบเทียบ<strong>ความสามารถในการจดจำคำศัพท์ทางการแพทย์</strong>ระหว่างกลุ่มที่ใช้ระบบ
+            Spaced Repetition ที่สร้างโดย Gemini AI กับกลุ่มควบคุมที่ทบทวนด้วยวิธีปกติ
+            วัดผลจากคะแนนแบบทดสอบหลังการทดลอง <strong>14 วัน</strong>หลังสอบปลายภาครายวิชาโลหิตวิทยา
+            โดยควบคุมตัวแปรร่วมด้วยคะแนน Pre-test
+          </div>
+          <span class="obj-method">📊 วิเคราะห์ด้วย ANCOVA</span>
+        </div>
+      </div>
+
+      <div class="obj-item">
+        <div class="obj-num">2</div>
+        <div>
+          <div class="obj-text">
+            วิเคราะห์<strong>แนวโน้มความแม่นยำในการตอบ (Accuracy %)</strong>
+            ของกลุ่มทดลองในแต่ละช่วงเวลา — วันที่ 1, 3, 7 และ 14
+            เพื่อสังเกตการเปลี่ยนแปลงของ Memory Retention ตาม Spaced Repetition
+          </div>
+          <span class="obj-method">📈 Repeated Measures Analysis</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     5. SCOPE
+====================================================== -->
+<section class="psec" id="s-scope">
+  <div class="psec-inner">
+    <div class="sec-num">Section 05</div>
+    <h2 class="sec-title">📋 ขอบเขตของโครงการวิจัย</h2>
+
+    <div class="scope-grid">
+      <div class="scope-card">
+        <h4>👥 ประชากรและกลุ่มตัวอย่าง</h4>
+        <p>นิสิตแพทย์ชั้นปีที่ 3 ปีการศึกษา 2569<br>คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</p>
+        <div class="group-split" style="margin-top:16px">
+          <div class="group-exp">🔬 กลุ่มทดลอง<br><small style="font-weight:500">รหัสนิสิต<br>เลขคี่</small></div>
+          <div class="group-ctrl">📋 กลุ่มควบคุม<br><small style="font-weight:500">รหัสนิสิต<br>เลขคู่</small></div>
+        </div>
+      </div>
+
+      <div class="scope-card">
+        <h4>📖 เนื้อหา — รายวิชาโลหิตวิทยา (25 คำ / 5 บท)</h4>
+        <ul>
+          <li>Blood Groups</li>
+          <li>Pancytopenia &amp; Bone Marrow Failure Syndrome</li>
+          <li>Leukocytic Disorders</li>
+          <li>Platelet &amp; Platelet Disorders</li>
+          <li>เนื้อหาพื้นฐานโลหิตวิทยา</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="timeline-wrap">
+      <h4>📅 Timeline การวิจัย (14 วัน)</h4>
+      <div class="tl-row">
+        <div class="tl-step">
+          <div class="tl-dot blue">📋</div>
+          <div class="tl-label">Pre-test</div>
+          <div class="tl-day">วันที่ 0</div>
+          <div class="tl-day" style="font-size:10px;color:#003087;font-weight:700">ทั้งสองกลุ่ม</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-step">
+          <div class="tl-dot blue">📝</div>
+          <div class="tl-label">Quiz ครั้งที่ 1</div>
+          <div class="tl-day">วันที่ 1</div>
+          <div class="tl-day" style="font-size:10px;color:#003087;font-weight:700">กลุ่มทดลอง</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-step">
+          <div class="tl-dot blue">📝</div>
+          <div class="tl-label">Quiz ครั้งที่ 2</div>
+          <div class="tl-day">วันที่ 3</div>
+          <div class="tl-day" style="font-size:10px;color:#003087;font-weight:700">กลุ่มทดลอง</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-step">
+          <div class="tl-dot blue">📝</div>
+          <div class="tl-label">Quiz ครั้งที่ 3</div>
+          <div class="tl-day">วันที่ 7</div>
+          <div class="tl-day" style="font-size:10px;color:#003087;font-weight:700">กลุ่มทดลอง</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-step">
+          <div class="tl-dot green">🏁</div>
+          <div class="tl-label">Post-test</div>
+          <div class="tl-day">วันที่ 14</div>
+          <div class="tl-day" style="font-size:10px;color:var(--green);font-weight:700">ทั้งสองกลุ่ม</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     6. METHODOLOGY
+====================================================== -->
+<section class="psec" id="s-method">
+  <div class="psec-inner">
+    <div class="sec-num">Section 06</div>
+    <h2 class="sec-title">🔬 ระเบียบวิธีวิจัย (RCT Design)</h2>
+
+    <div class="rct-wrap">
+      <!-- Flow diagram -->
+      <div class="rct-v">
+        <!-- All students -->
+        <div class="rct-box start" style="width:280px">
+          👥 นิสิตแพทย์ชั้นปีที่ 3<br>
+          <small>คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา ปีการศึกษา 2569</small>
+        </div>
+        <div class="rct-v-arrow">↓</div>
+
+        <!-- Pre-test -->
+        <div class="rct-box pretest" style="width:280px">
+          📋 Pre-test<br>
+          <small>ทดสอบคำศัพท์โลหิตวิทยา 25 คำ — ทันทีหลังสอบปลายภาค</small>
+        </div>
+        <div class="rct-v-arrow">↓</div>
+
+        <!-- Randomize -->
+        <div class="rct-box random" style="width:280px">
+          🎲 Randomize โดย Student ID<br>
+          <small>รหัสคี่ → ทดลอง &nbsp;|&nbsp; รหัสคู่ → ควบคุม</small>
+        </div>
+        <div class="rct-v-arrow">↓</div>
+
+        <!-- Two branches -->
+        <div class="rct-branch">
+          <div class="rct-v">
+            <div class="rct-box exp" style="width:220px">
+              🔬 กลุ่มทดลอง<br>
+              <small>ใช้แอป MedVocab<br>Quiz วันที่ 1, 3, 7</small>
+            </div>
+          </div>
+          <div style="align-self:center;font-size:28px;color:var(--text3)">⟷</div>
+          <div class="rct-v">
+            <div class="rct-box ctrl" style="width:220px">
+              📋 กลุ่มควบคุม<br>
+              <small>ทบทวนตามปกติ<br>ไม่ใช้ระบบ MedVocab</small>
+            </div>
+          </div>
+        </div>
+        <div class="rct-v-arrow">↓</div>
+
+        <!-- Post-test -->
+        <div class="rct-box post" style="width:280px">
+          🏁 Post-test — วันที่ 14<br>
+          <small>วัดความจำระยะยาว — ทั้งสองกลุ่ม</small>
+        </div>
+        <div class="rct-v-arrow">↓</div>
+
+        <!-- Analysis -->
+        <div class="rct-box result" style="width:280px">
+          📊 ANCOVA Analysis<br>
+          <small>เปรียบเทียบ Learning Gain (Post − Pre) ระหว่างกลุ่ม</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     7. THEORY & HYPOTHESIS
+====================================================== -->
+<section class="psec" id="s-theory">
+  <div class="psec-inner">
+    <div class="sec-num">Section 07</div>
+    <h2 class="sec-title">🧠 ทฤษฎี สมมุติฐาน และกรอบแนวความคิด</h2>
+
+    <div class="theory-grid">
+      <div class="theory-card">
+        <div class="theory-icon">📉</div>
+        <h3>Forgetting Curve<br>(Ebbinghaus)</h3>
+        <p>ความจำเสื่อมถอยตามเวลาในอัตราที่คาดเดาได้ — หากไม่ทบทวน จะลืมประมาณ 70% ภายใน 24 ชั่วโมง</p>
+        <div class="curve-wrap">
+          <div class="curve-steps">
+            <div class="curve-step">
+              <div class="curve-pct">100%</div>
+              <div class="curve-bar" style="height:60px"></div>
+              <div class="curve-day">เรียนจบ</div>
+            </div>
+            <div class="curve-step">
+              <div class="curve-pct">58%</div>
+              <div class="curve-bar" style="height:35px;background:#5b9cf6"></div>
+              <div class="curve-day">วันที่ 1</div>
+            </div>
+            <div class="curve-step">
+              <div class="curve-pct">44%</div>
+              <div class="curve-bar" style="height:26px;background:#7fb3ff"></div>
+              <div class="curve-day">วันที่ 3</div>
+            </div>
+            <div class="curve-step">
+              <div class="curve-pct">36%</div>
+              <div class="curve-bar" style="height:22px;background:#a8ceff"></div>
+              <div class="curve-day">วันที่ 7</div>
+            </div>
+            <div class="curve-step">
+              <div class="curve-pct">25%</div>
+              <div class="curve-bar" style="height:15px;background:#c8dcff"></div>
+              <div class="curve-day">วันที่ 14</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:8px">*ถ้าไม่ทบทวนเลย</div>
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-icon">🔁</div>
+        <h3>Spaced Repetition<br>(Spacing Effect)</h3>
+        <p>
+          การทบทวนในช่วงเวลาที่ขยายออกไปเรื่อยๆ (วันที่ 1→3→7) ช่วยให้ข้อมูลเข้าสู่
+          Long-term Memory ได้อย่างมีประสิทธิภาพ เมื่อเทียบกับ Massed Practice (ท่องพร้อมกัน)
+        </p>
+        <div style="margin-top:16px;padding:12px;background:var(--blue-xl);border-radius:10px;font-size:13px;color:var(--blue);font-weight:700;text-align:center">
+          Distributed Practice<br>
+          <span style="font-size:20px">≫</span><br>
+          Massed Practice
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-icon">🤖</div>
+        <h3>Gemini AI<br>Content Generation</h3>
+        <p>
+          ใช้ Gemini AI สร้างชุดคำถาม-คำตอบ 5 ตัวเลือกจากคำศัพท์โลหิตวิทยา 25 คำ
+          และออกแบบ schedule การทบทวนตามหลัก Spaced Repetition โดยอัตโนมัติ
+        </p>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">สร้างโจทย์</span>
+          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">5 ตัวเลือก</span>
+          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">อธิบายเฉลย</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hypothesis -->
+    <div class="hypo-box">
+      <h3>สมมุติฐานการวิจัย (Research Hypothesis)</h3>
+      <div class="hypo-text">
+        H₁: กลุ่มทดลองที่ใช้ระบบ MedVocab Spaced Repetition ที่สร้างโดย Gemini AI
+        จะมี<strong>คะแนน Post-test สูงกว่า</strong>กลุ่มควบคุมที่ทบทวนด้วยวิธีปกติ
+        อย่างมีนัยสำคัญทางสถิติ หลังควบคุมคะแนน Pre-test ด้วย ANCOVA
+      </div>
+      <div class="hypo-stat">
+        H₀: ไม่มีความแตกต่างของคะแนน Post-test ระหว่างสองกลุ่ม (α = 0.05)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     CTA
+====================================================== -->
+<section id="s-cta" style="background:linear-gradient(150deg,#001a5c 0%,#003087 100%);min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 40px;">
+  <div class="cta-title" style="color:white">🏥 ดูแอปพลิเคชัน MedVocab จริง</div>
+  <div class="cta-sub" style="color:rgba(255,255,255,0.65);font-size:18px;margin-bottom:36px">ลองเล่น Demo หรือดูผลวิจัย (Real-time)</div>
+  <div class="cta-btns">
+    <a class="btn-cta-primary" href="booth.html">🎪 เปิด Booth Presentation</a>
+    <a class="btn-cta-secondary" href="index.html?demo=1">🎮 ลองเล่น Demo Quiz</a>
+  </div>
+  <div style="margin-top:36px;font-size:13px;color:rgba(255,255,255,0.4)">
+    คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา · ปีงบประมาณ พ.ศ. 2569
+  </div>
+</section>
+
+<script>
+function goTo(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const navH = document.querySelector('.pnav')?.offsetHeight || 60;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - navH - 8, behavior: 'smooth' });
+}
+
+// Scroll spy
+const sections = ['s-cover','s-team','s-background','s-objectives','s-scope','s-method','s-theory'];
+const links = document.querySelectorAll('.pnav-link');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target.id);
+      links.forEach((l, i) => l.classList.toggle('active', i === idx));
+    }
+  });
+}, { rootMargin: '-60px 0px -50% 0px', threshold: 0 });
+
+sections.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+</script>
+</body>
+</html>
