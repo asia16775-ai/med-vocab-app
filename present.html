@@ -312,7 +312,7 @@ body {
 /* ======================================================
    THEORY
 ====================================================== */
-.theory-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.theory-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .theory-card {
   background: var(--white); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 24px;
@@ -448,7 +448,11 @@ body {
       <div class="team-card gold">
         <h4>🎓 ที่ปรึกษา / หัวหน้าโครงการวิจัย</h4>
         <div class="advisor-name">อ.พญ.ศศิกานต์ ลีละวงศ์</div>
-        <div style="margin-top:8px;font-size:14px;color:var(--text3)">คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:13px;color:var(--text2)">🏥 คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</div>
+          <div style="font-size:13px;color:var(--text2)">📚 สาขาวิชา: วิทยาศาสตร์การแพทย์ / การศึกษาทางการแพทย์</div>
+          <div style="font-size:13px;color:var(--text2)">🤖 กลุ่มวิชา: เทคโนโลยีทางการศึกษา และการเรียนรู้ด้วย AI</div>
+        </div>
       </div>
 
       <!-- Info -->
@@ -648,6 +652,28 @@ body {
         </div>
       </div>
     </div>
+
+    <!-- Variables -->
+    <div class="timeline-wrap" style="margin-top:32px">
+      <h4>📊 ตัวแปรในการวิจัย</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px">
+        <div style="background:var(--blue-xl);border-radius:12px;padding:16px">
+          <div style="font-size:11px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">ตัวแปรอิสระ</div>
+          <div style="font-weight:700;color:var(--blue);font-size:14px;margin-bottom:8px">รูปแบบการทบทวน</div>
+          <div style="font-size:13px;color:var(--text2)">MedVocab Spaced Repetition (AI)<br>vs ทบทวนตามปกติ</div>
+        </div>
+        <div style="background:var(--green-l);border-radius:12px;padding:16px">
+          <div style="font-size:11px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">ตัวแปรตาม (หลัก)</div>
+          <div style="font-weight:700;color:var(--green);font-size:14px;margin-bottom:8px">คะแนน Post-test D14</div>
+          <div style="font-size:13px;color:var(--text2)">Long-term retention<br>วิเคราะห์ด้วย ANCOVA<br>(Pre-test เป็น Covariate)</div>
+        </div>
+        <div style="background:var(--gold-l);border-radius:12px;padding:16px">
+          <div style="font-size:11px;font-weight:800;color:#8a6200;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">ตัวแปรตาม (รอง)</div>
+          <div style="font-weight:700;color:#8a6200;font-size:14px;margin-bottom:8px">Accuracy (%) กลุ่มทดลอง</div>
+          <div style="font-size:13px;color:var(--text2)">ความแม่นยำการตอบคำถาม<br>วันที่ 1, 3, 7, 14</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -712,6 +738,31 @@ body {
         <div class="rct-box result" style="width:280px">
           📊 ANCOVA Analysis<br>
           <small>เปรียบเทียบ Learning Gain (Post − Pre) ระหว่างกลุ่ม</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- IOC Validation + Data Collection -->
+    <div class="timeline-wrap" style="margin-top:40px">
+      <h4>✅ การตรวจสอบคุณภาพข้อสอบ &amp; ขั้นตอนการเก็บข้อมูล</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px">
+        <div style="background:var(--blue-xl);border-radius:12px;padding:20px">
+          <div style="font-weight:800;color:var(--blue);font-size:15px;margin-bottom:12px">📐 IOC Validation (Rovinelli &amp; Hambleton)</div>
+          <ul style="font-size:14px;color:var(--text2);list-style:none;padding:0;line-height:2.1">
+            <li>👥 ผู้เชี่ยวชาญ <strong>3 ท่าน</strong> ตรวจสอบความสอดคล้อง</li>
+            <li>📊 ให้คะแนน +1 (สอดคล้อง) / 0 (ไม่แน่ใจ) / −1 (ไม่สอดคล้อง)</li>
+            <li>✅ IOC ≥ 0.50 = ผ่านเกณฑ์</li>
+            <li>⚠️ IOC &lt; 0.50 = ปรับปรุงและส่งตรวจใหม่</li>
+          </ul>
+        </div>
+        <div style="background:var(--green-l);border-radius:12px;padding:20px">
+          <div style="font-weight:800;color:var(--green);font-size:15px;margin-bottom:12px">📋 ขั้นตอนการเก็บข้อมูล</div>
+          <div style="font-size:14px;color:var(--text2);line-height:2.1">
+            <div><strong style="color:var(--green)">ขั้นที่ 1 — เตรียมการ</strong><br>
+            <span style="padding-left:8px">สร้างบัญชีนิสิต, ชี้แจงขั้นตอน, แจกลิงค์แอป</span></div>
+            <div style="margin-top:10px"><strong style="color:var(--green)">ขั้นที่ 2 — เก็บข้อมูล</strong><br>
+            <span style="padding-left:8px">Pre-test (D0) → Quiz D1/D3/D7 (กลุ่มทดลอง) → Post-test (D14)</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -788,6 +839,20 @@ body {
           <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">สร้างโจทย์</span>
           <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">5 ตัวเลือก</span>
           <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">อธิบายเฉลย</span>
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-icon">📝</div>
+        <h3>Retrieval Practice<br>(Testing Effect)</h3>
+        <p>
+          การทดสอบตัวเองซ้ำๆ (Test-Enhanced Learning) ช่วยดึงข้อมูลจากความจำ
+          และเสริมสร้าง memory trace ให้แข็งแกร่ง ส่งผลให้ Long-term retention
+          ดีกว่าการอ่านซ้ำอย่างมีนัยสำคัญ
+        </p>
+        <div style="margin-top:14px;padding:12px;background:var(--blue-xl);border-radius:10px;font-size:13px;color:var(--blue);font-weight:700;line-height:1.7">
+          Retrieval Practice &gt; Re-reading<br>
+          <span style="font-weight:500;font-size:12px;color:var(--text2)">(Roediger &amp; Karpicke, 2006)</span>
         </div>
       </div>
     </div>
