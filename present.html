@@ -400,8 +400,71 @@ body {
   .pnav-links { display: none; }
 }
 @media (max-width: 600px) {
+  /* Base */
+  body { font-size: 15px; }
+  .psec { padding: calc(var(--nav-h) + 24px) 16px 40px; }
+  .sec-title { font-size: 22px !important; margin-bottom: 20px; }
+  .sec-num { font-size: 11px; }
+
+  /* Cover */
+  .cover-inner { padding: 0 4px; }
+  .cover-title-th { font-size: 18px !important; }
+  .cover-title-en { font-size: 13px !important; }
+  .cover-qr-wrap { margin-top: 28px; }
+
+  /* Nav */
+  .pnav-logo { font-size: 15px; }
+  .pnav-demo { padding: 6px 12px; font-size: 12px; }
+
+  /* Timeline */
   .tl-label, .tl-day { font-size: 10px; }
-  .tl-dot { width: 38px; height: 38px; font-size: 16px; }
+  .tl-dot { width: 36px; height: 36px; font-size: 14px; }
+  .tl-row { gap: 4px; }
+
+  /* RCT Diagram */
+  .rct-branch { flex-direction: column; align-items: center; gap: 12px; }
+  .rct-box { width: 100% !important; max-width: 280px; }
+
+  /* All inline 2-col grids → 1 col on mobile */
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="grid-template-columns:1fr auto 1fr auto 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Hide arrows in concept framework on mobile */
+  [style*="font-size:28px"][style*="color:var(--text3)"] { display: none; }
+
+  /* Phone mockups — scroll horizontally */
+  #s-app [style*="display:flex"][style*="gap:32px"] {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Theory cards */
+  .theory-grid { grid-template-columns: 1fr; }
+  .theory-card { padding: 20px; }
+
+  /* Scope group split */
+  .group-split { flex-direction: column; gap: 8px; }
+  .group-exp, .group-ctrl { width: 100%; }
+
+  /* Objective items */
+  .obj-item { flex-direction: column; gap: 12px; }
+  .obj-num { width: 36px; height: 36px; font-size: 16px; }
+
+  /* Chips/keywords wrap */
+  .info-row, .keyword-wrap { gap: 8px; }
+  .info-chip { font-size: 12px; padding: 6px 12px; }
+  .keyword { font-size: 12px; padding: 4px 12px; }
+
+  /* FAQ */
+  details { padding: 16px !important; }
+  details summary { font-size: 14px !important; }
+
+  /* Literature Review cards */
+  #s-litreview [style*="display:flex"][style*="gap:16px"] {
+    flex-direction: column;
+  }
 }
 </style>
 </head>
@@ -949,9 +1012,11 @@ body {
     <div class="hypo-box">
       <h3>สมมุติฐานการวิจัย (Research Hypothesis)</h3>
       <div class="hypo-text">
-        H₁: กลุ่ม A (ทดลอง) ที่ใช้ระบบ MedVocab Spaced Repetition ที่สร้างโดย Gemini AI
-        จะมี<strong>คะแนน Post-test สูงกว่า</strong>กลุ่ม B (ควบคุม) ที่ทบทวนด้วยวิธีปกติ
-        อย่างมีนัยสำคัญทางสถิติ หลังควบคุมคะแนน Pre-test ด้วย ANCOVA
+        นิสิตแพทย์ชั้นปีที่ 3 ปีการศึกษา 2569 ที่ได้รับการทบทวนคำศัพท์ทางการแพทย์ด้วย
+        <strong>ระบบทบทวนแบบเว้นระยะห่างที่สร้างโดย Gemini AI</strong>
+        จะมีคะแนนความสามารถในการจดจำคำศัพท์ทางการแพทย์หลังการทดลอง
+        <strong>สูงกว่า</strong>นิสิตแพทย์ชั้นปีที่ 3 ปีการศึกษา 2569
+        ที่ไม่ได้รับการทบทวนด้วยระบบดังกล่าว อย่างมีนัยสำคัญทางสถิติ
       </div>
       <div class="hypo-stat">
         H₀: ไม่มีความแตกต่างของคะแนน Post-test ระหว่างสองกลุ่ม (α = 0.05)
@@ -1176,10 +1241,16 @@ body {
 
     <details style="background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:20px 24px;cursor:pointer;">
       <summary style="font-weight:700;font-size:16px;color:var(--blue);list-style:none;display:flex;justify-content:space-between;align-items:center;">
-        ข้อมูลส่วนตัวของนิสิตจะถูกเก็บอย่างไร? <span style="font-size:20px;color:var(--text3);">+</span>
+        ระบบเก็บรหัสนิสิตหรือข้อมูลส่วนตัวหรือเปล่า? <span style="font-size:20px;color:var(--text3);">+</span>
       </summary>
       <p style="margin-top:14px;color:var(--text2);font-size:15px;line-height:1.8;">
-        ระบบ <strong>ไม่เก็บข้อมูลส่วนตัวใดๆ</strong> ทั้งสิ้น ไม่มีชื่อ-นามสกุล ไม่มีรหัสนิสิต ไม่มีข้อมูลสุขภาพ และไม่มีการบันทึกพฤติกรรมการใช้งาน ข้อมูลทั้งหมดที่ประมวลผลจะอยู่ในรูปแบบ <strong>ภาพรวม (Aggregate)</strong> เพื่อวัตถุประสงค์ทางวิชาการเท่านั้น และผู้เข้าร่วมสามารถถอนตัวจากการวิจัยได้ทุกเมื่อโดยไม่มีผลกระทบใดๆ
+        <strong>ไม่มีการเก็บรหัสนิสิตหรือข้อมูลที่ระบุตัวตนได้ใดๆ ทั้งสิ้น</strong><br><br>
+        การแบ่งกลุ่มดำเนินการโดย<strong>ผู้วิจัยสุ่มรายชื่อนิสิตด้วย Excel (RAND())</strong> ก่อนการทดลอง
+        โดยนิสิตแต่ละคนจะทราบเพียงว่าตัวเองอยู่กลุ่ม A หรือ B เท่านั้น<br><br>
+        เมื่อเข้าใช้งานระบบ นิสิต<strong>ลงทะเบียนด้วยตัวเอง</strong> โดยตั้ง Username และ Password เอง
+        ระบบจะ<strong>ไม่สามารถระบุตัวตนของผู้ใช้ได้</strong> ไม่มีชื่อ ไม่มีรหัสนิสิต
+        ข้อมูลที่บันทึกมีเพียง<strong>คะแนนแบบทดสอบในภาพรวม</strong>เพื่อใช้วิเคราะห์ทางสถิติเท่านั้น
+        และผู้เข้าร่วมสามารถถอนตัวได้ทุกเมื่อโดยไม่มีผลกระทบใดๆ
       </p>
     </details>
 
