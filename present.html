@@ -422,6 +422,7 @@ body {
     <button class="pnav-link" onclick="goTo('s-theory')">ทฤษฎี</button>
     <button class="pnav-link" onclick="goTo('s-app')">แอป</button>
     <button class="pnav-link" onclick="goTo('s-faq')">FAQ</button>
+    <button class="pnav-link" onclick="goTo('s-litreview')">วรรณกรรม</button>
   </div>
   <a class="pnav-demo" href="index.html?demo=1&ref=present">🎮 Demo App →</a>
 </nav>
@@ -623,7 +624,8 @@ body {
       <div class="scope-card">
         <h4>👥 ประชากรและกลุ่มตัวอย่าง</h4>
         <p>นิสิตแพทย์ชั้นปีที่ 3 ปีการศึกษา 2569<br>คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</p>
-        <div style="display:inline-block;background:var(--blue-xl);color:var(--blue);font-size:13px;font-weight:800;padding:4px 14px;border-radius:20px;margin:10px 0 14px">n = 62 คน</div>
+        <div style="display:inline-block;background:var(--blue-xl);color:var(--blue);font-size:13px;font-weight:800;padding:4px 14px;border-radius:20px;margin:10px 0 6px">n = 62 คน</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px">📐 Lehr's Formula: n = 16/Δ² , Δ = 0.80 (large effect) → n ≥ 25/กลุ่ม</div>
         <div class="group-split">
           <div class="group-exp">🔬 กลุ่มทดลอง<br><small style="font-weight:500">รหัสนิสิต<br>เลขคี่ (n≈31)</small></div>
           <div class="group-ctrl">📋 กลุ่มควบคุม<br><small style="font-weight:500">รหัสนิสิต<br>เลขคู่ (n≈31)</small></div>
@@ -886,6 +888,39 @@ body {
       </div>
     </div>
 
+    <!-- Fixed vs Adaptive -->
+    <div style="margin:36px 0;background:linear-gradient(135deg,var(--blue-xl),#fff);border:2px solid var(--blue);border-radius:var(--radius);padding:28px 32px">
+      <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px">Key Design Choice</div>
+      <h3 style="font-size:20px;font-weight:900;color:var(--blue);margin-bottom:20px">⚙️ Fixed-Interval vs Adaptive Spaced Repetition</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div style="background:var(--blue);color:white;border-radius:12px;padding:20px">
+          <div style="font-size:15px;font-weight:800;margin-bottom:4px">✅ Fixed-Interval</div>
+          <div style="font-size:12px;opacity:0.8;margin-bottom:12px">ที่ใช้ในงานวิจัยนี้</div>
+          <ul style="list-style:none;padding:0;font-size:14px;line-height:2">
+            <li>📅 กำหนดล่วงหน้า: วันที่ 1 / 3 / 7</li>
+            <li>👥 เหมือนกันทุกคนในกลุ่มทดลอง</li>
+            <li>🔬 ควบคุม intervention ได้ — เหมาะ RCT</li>
+            <li>📊 เปรียบเทียบกลุ่มได้อย่างยุติธรรม</li>
+          </ul>
+        </div>
+        <div style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:20px">
+          <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">Adaptive-Interval</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:12px">เช่น Anki, SuperMemo</div>
+          <ul style="list-style:none;padding:0;font-size:14px;color:var(--text2);line-height:2">
+            <li>🤖 ปรับตาม performance รายบุคคล</li>
+            <li>⚡ ประสิทธิภาพสูง แต่ซับซ้อน</li>
+            <li>⚠️ ยาก control ใน RCT</li>
+            <li>🔄 ตัวแปรต่างกันในแต่ละคน</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:14px;background:rgba(0,48,135,0.07);border-radius:10px;font-size:14px;color:var(--text2);line-height:1.7">
+        <strong style="color:var(--blue)">เหตุผลที่เลือก Fixed-Interval:</strong> เพื่อให้ทุกคนในกลุ่มทดลองได้รับ intervention ที่เหมือนกัน
+        ทำให้ความแตกต่างของผลลัพธ์เกิดจาก Spaced Repetition จริงๆ ไม่ใช่ความแตกต่างของ schedule
+        <span style="color:var(--text3)">(Mettler et al., 2016)</span>
+      </div>
+    </div>
+
     <!-- Hypothesis -->
     <div class="hypo-box">
       <h3>สมมุติฐานการวิจัย (Research Hypothesis)</h3>
@@ -896,6 +931,54 @@ body {
       </div>
       <div class="hypo-stat">
         H₀: ไม่มีความแตกต่างของคะแนน Post-test ระหว่างสองกลุ่ม (α = 0.05)
+      </div>
+    </div>
+
+    <!-- Conceptual Framework -->
+    <div style="margin-top:36px">
+      <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px">Section 07 — Cont.</div>
+      <h3 style="font-size:20px;font-weight:900;color:var(--blue);margin-bottom:24px">🗺️ กรอบแนวคิดการวิจัย (Conceptual Framework)</h3>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center;text-align:center;">
+        <!-- Input -->
+        <div style="background:var(--blue-xl);border:2px solid var(--blue);border-radius:14px;padding:20px 16px">
+          <div style="font-size:22px;margin-bottom:8px">🎓</div>
+          <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px">INPUT</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.7">
+            นิสิตแพทย์ชั้นปีที่ 3<br>
+            <strong>n = 62 คน</strong><br>
+            Pre-test (D0)
+          </div>
+        </div>
+        <div style="font-size:28px;color:var(--text3);padding:0 12px">→</div>
+        <!-- Process -->
+        <div style="background:var(--blue);color:white;border-radius:14px;padding:20px 16px">
+          <div style="font-size:22px;margin-bottom:8px">⚙️</div>
+          <div style="font-size:13px;font-weight:800;margin-bottom:8px">PROCESS</div>
+          <div style="font-size:13px;opacity:0.9;line-height:1.7">
+            <strong>กลุ่มทดลอง:</strong><br>
+            MedVocab Quiz<br>D1 → D3 → D7<br>
+            <span style="opacity:0.7">Fixed-Interval Spaced Repetition</span>
+          </div>
+        </div>
+        <div style="font-size:28px;color:var(--text3);padding:0 12px">→</div>
+        <!-- Output -->
+        <div style="background:var(--green-l);border:2px solid var(--green);border-radius:14px;padding:20px 16px">
+          <div style="font-size:22px;margin-bottom:8px">📊</div>
+          <div style="font-size:13px;font-weight:800;color:var(--green);margin-bottom:8px">OUTPUT</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.7">
+            Post-test (D14)<br>
+            <strong>Long-term Retention</strong><br>
+            วิเคราะห์ด้วย ANCOVA
+          </div>
+        </div>
+      </div>
+      <!-- Confounding variables -->
+      <div style="margin-top:16px;background:var(--gold-l);border:1px solid var(--gold);border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:18px">⚠️</span>
+        <div style="font-size:14px;color:#7a5a00">
+          <strong>Confounding Variables ที่ควบคุม:</strong>
+          Pre-test score (covariate ใน ANCOVA) · ประสบการณ์การใช้ Flashcard app · เวลาทบทวนนอกระบบ
+        </div>
       </div>
     </div>
   </div>
@@ -1102,6 +1185,116 @@ body {
 </section>
 
 <!-- ======================================================
+     LITERATURE REVIEW
+====================================================== -->
+<section class="psec" id="s-litreview">
+  <div class="psec-inner">
+    <div class="sec-num">Section 10</div>
+    <h2 class="sec-title">📚 การทบทวนวรรณกรรม (Literature Review)</h2>
+    <p style="color:var(--text2);font-size:15px;margin-bottom:32px;max-width:700px">
+      งานวิจัยที่สนับสนุนแนวคิดหลักของโครงการ — ครอบคลุม Forgetting Curve, Spaced Repetition,
+      Retrieval Practice และ Fixed-Interval scheduling
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+      <!-- Ref 1 -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--blue)">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[1]</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Forgetting Curve — Ebbinghaus (1885)</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.8">
+              ค้นพบว่าความจำเสื่อมถอยตามเวลาในรูปแบบ exponential decay โดยหากไม่ทบทวน
+              จะลืมประมาณ <strong>70% ภายใน 24 ชั่วโมง</strong> เป็นพื้นฐานทางทฤษฎีของ Spaced Repetition ทั้งหมด
+            </div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Forgetting Curve</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Memory Decay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ref 2 -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--blue)">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[2]</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Spacing Effect Meta-analysis — Cepeda et al. (2006)</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.8">
+              Meta-analysis ครอบคลุม 317 studies พบว่า <strong>Distributed Practice ให้ผลดีกว่า Massed Practice</strong>
+              อย่างสม่ำเสมอ โดยเฉพาะเมื่อ retention interval ยาวขึ้น — สนับสนุนการใช้ D1/D3/D7 schedule
+            </div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Spacing Effect</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Meta-analysis</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ref 3 -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--gold)">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="min-width:44px;height:44px;background:var(--gold);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[3]</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#7a5a00;margin-bottom:4px">Testing Effect — Roediger &amp; Karpicke (2006)</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.8">
+              พิสูจน์ว่า <strong>การทดสอบตัวเอง (Retrieval Practice)</strong> ช่วยเสริม Long-term Retention
+              ได้ดีกว่าการอ่านซ้ำอย่างมีนัยสำคัญ — เป็นหลักการหลักที่ Quiz ใน MedVocab ใช้
+            </div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <span style="padding:3px 10px;background:var(--gold-l);color:#7a5a00;border-radius:6px;font-size:12px;font-weight:700">Retrieval Practice</span>
+              <span style="padding:3px 10px;background:var(--gold-l);color:#7a5a00;border-radius:6px;font-size:12px;font-weight:700">Testing Effect</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ref 4 -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--blue)">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[4]</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Fixed vs Adaptive Scheduling — Mettler et al. (2016)</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.8">
+              เปรียบเทียบ Fixed-Interval กับ Adaptive-Interval Spaced Repetition พบว่า
+              Fixed schedule <strong>ยังคงให้ผลดีในสภาพแวดล้อมที่ต้องการ standardization</strong>
+              และควบคุม confounding ได้ดีกว่าในการออกแบบ RCT
+            </div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Fixed-Interval</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">RCT Design</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ref 5 -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--green)">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="min-width:44px;height:44px;background:var(--green);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[5]</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--green);margin-bottom:4px">AI-assisted Medical Education — Zhu et al. (2023)</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.8">
+              การใช้ AI ในการสร้างเนื้อหาการเรียนรู้ทางการแพทย์ช่วยเพิ่มประสิทธิภาพ
+              และลดภาระของอาจารย์ในการสร้างแบบฝึกหัด — สนับสนุนการใช้ Gemini AI
+              ในขั้นตอน <strong>content generation ของ MedVocab</strong>
+            </div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <span style="padding:3px 10px;background:var(--green-l);color:var(--green);border-radius:6px;font-size:12px;font-weight:700">AI in Medical Ed</span>
+              <span style="padding:3px 10px;background:var(--green-l);color:var(--green);border-radius:6px;font-size:12px;font-weight:700">Content Generation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
      CTA
 ====================================================== -->
 <section id="s-cta" style="background:linear-gradient(150deg,#001a5c 0%,#003087 100%);min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 40px;">
@@ -1124,7 +1317,7 @@ function goTo(id) {
 }
 
 // Scroll spy
-const sections = ['s-cover','s-team','s-background','s-objectives','s-scope','s-method','s-theory','s-app','s-faq'];
+const sections = ['s-cover','s-team','s-background','s-objectives','s-scope','s-method','s-theory','s-app','s-faq','s-litreview'];
 const links = document.querySelectorAll('.pnav-link');
 const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => {
