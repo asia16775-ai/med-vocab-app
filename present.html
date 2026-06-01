@@ -466,10 +466,23 @@ body {
     flex-direction: column;
   }
 
-  /* App section — center heading on mobile */
-  #s-app .sec-num,
-  #s-app .sec-title {
+  /* Center ALL section headings on mobile */
+  .sec-num, .sec-title {
     text-align: center;
+  }
+
+  /* Center psec-inner content */
+  .psec-inner {
+    text-align: left; /* keep body text left, only override headers above */
+  }
+
+  /* App section — center phone mockups */
+  #s-app > div.psec-inner > div[style*="display:flex"] {
+    justify-content: center;
+    align-items: center;
+  }
+  #s-app [style*="margin-top:-20px"] {
+    margin-top: 0 !important;
   }
 }
 </style>
