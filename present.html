@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MedVocab — Research Presentation 2569</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 /* ======================================================
    RESET & BASE
@@ -130,6 +131,25 @@ body {
   letter-spacing: 0.5px;
 }
 .cover-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 6px; }
+
+/* QR Code */
+.cover-qr-wrap {
+  margin-top: 44px;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.cover-qr-box {
+  background: white; padding: 10px; border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  display: inline-block; line-height: 0;
+}
+.cover-qr-label {
+  font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,0.75); letter-spacing: 0.5px;
+}
+.cover-qr-url {
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  font-family: 'Courier New', monospace;
+}
 
 /* ======================================================
    TEAM SECTION
@@ -432,6 +452,15 @@ body {
 
     <p class="cover-univ">🏫 คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</p>
     <p class="cover-sub">Faculty of Medicine, Burapha University</p>
+
+    <!-- QR Code -->
+    <div class="cover-qr-wrap">
+      <div class="cover-qr-box">
+        <div id="cover-qr"></div>
+      </div>
+      <p class="cover-qr-label">📱 สแกนเพื่อเปิด Presentation บนมือถือ</p>
+      <p class="cover-qr-url">asia16775-ai.github.io/med-vocab-app/present.html</p>
+    </div>
   </div>
 </section>
 
@@ -1107,6 +1136,22 @@ const obs = new IntersectionObserver((entries) => {
 }, { rootMargin: '-60px 0px -50% 0px', threshold: 0 });
 
 sections.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+
+// Generate QR Code
+(function() {
+  const url = "https://asia16775-ai.github.io/med-vocab-app/present.html";
+  const el = document.getElementById("cover-qr");
+  if (el && typeof QRCode !== 'undefined') {
+    new QRCode(el, {
+      text: url,
+      width: 128,
+      height: 128,
+      colorDark: "#003087",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+})();
 </script>
 </body>
 </html>
