@@ -767,8 +767,8 @@ body {
 
         <!-- Analysis -->
         <div class="rct-box result" style="width:280px">
-          📊 ANCOVA Analysis<br>
-          <small>เปรียบเทียบ Learning Gain (Post − Pre) ระหว่างกลุ่ม</small>
+          📊 ANCOVA Analysis (SPSS)<br>
+          <small>Post-test ระหว่างกลุ่ม, Pre-test เป็น Covariate<br>α = 0.05 · 95% CI</small>
         </div>
       </div>
     </div>
@@ -794,6 +794,29 @@ body {
             <div style="margin-top:10px"><strong style="color:var(--green)">ขั้นที่ 2 — เก็บข้อมูล</strong><br>
             <span style="padding-left:8px">Pre-test (D0) → Quiz D1/D3/D7 (กลุ่ม A เท่านั้น) → Post-test (D14)</span></div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistical Analysis -->
+    <div style="margin-top:28px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+      <div style="font-weight:800;color:var(--blue);font-size:16px;margin-bottom:16px">📈 การวิเคราะห์ข้อมูล (Statistical Analysis)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:var(--blue-xl);border-radius:10px;padding:16px">
+          <div style="font-weight:800;color:var(--blue);font-size:14px;margin-bottom:8px">📋 Descriptive Statistics</div>
+          <ul style="font-size:13px;color:var(--text2);list-style:none;padding:0;line-height:2">
+            <li>• Mean ± SD คะแนน Pre/Post-test ทั้ง 2 กลุ่ม</li>
+            <li>• Accuracy (%) วันที่ 1, 3, 7, 14 — กลุ่ม A</li>
+            <li>• Frequency/% การทบทวนนอกระบบ</li>
+          </ul>
+        </div>
+        <div style="background:var(--blue-xl);border-radius:10px;padding:16px">
+          <div style="font-weight:800;color:var(--blue);font-size:14px;margin-bottom:8px">🔬 Inferential Statistics (SPSS)</div>
+          <ul style="font-size:13px;color:var(--text2);list-style:none;padding:0;line-height:2">
+            <li>✅ <strong>ANCOVA</strong> — เปรียบเทียบ Post-test (Pre-test เป็น Covariate)</li>
+            <li>📈 <strong>Repeated Measures ANOVA</strong> — Accuracy กลุ่ม A</li>
+            <li>⚖️ α = 0.05 · ความเชื่อมั่น 95%</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -861,15 +884,16 @@ body {
 
       <div class="theory-card">
         <div class="theory-icon">🤖</div>
-        <h3>Gemini AI<br>Content Generation</h3>
+        <h3>Gemini 3.5 Flash<br>Content Generation</h3>
         <p>
-          ใช้ Gemini AI สร้างชุดคำถาม-คำตอบ 5 ตัวเลือกจากคำศัพท์โลหิตวิทยา 25 คำ
-          และออกแบบ schedule การทบทวนตามหลัก Spaced Repetition โดยอัตโนมัติ
+          ใช้ Gemini 3.5 Flash (Google) สร้างชุดข้อสอบปรนัย 5 ตัวเลือก
+          3 ชุด × 5 ข้อ = 15 ข้อ ครอบคลุม 5 บทเรียน บทละ 1 ข้อ
+          Pre/Post-test ใช้ชุดคำถามเดียวกัน 15 ข้อ
         </p>
         <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">สร้างโจทย์</span>
-          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">5 ตัวเลือก</span>
-          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">อธิบายเฉลย</span>
+          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">1M Token Context</span>
+          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">64K Output</span>
+          <span style="padding:4px 10px;background:var(--blue);color:white;border-radius:6px;font-size:12px;font-weight:700">Code Execution</span>
         </div>
       </div>
 
@@ -938,46 +962,43 @@ body {
     <div style="margin-top:36px">
       <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px">Section 07 — Cont.</div>
       <h3 style="font-size:20px;font-weight:900;color:var(--blue);margin-bottom:24px">🗺️ กรอบแนวคิดการวิจัย (Conceptual Framework)</h3>
-      <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center;text-align:center;">
-        <!-- Input -->
-        <div style="background:var(--blue-xl);border:2px solid var(--blue);border-radius:14px;padding:20px 16px">
-          <div style="font-size:22px;margin-bottom:8px">🎓</div>
-          <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px">INPUT</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.7">
-            นิสิตแพทย์ชั้นปีที่ 3<br>
-            <strong>n = 62 คน</strong><br>
-            Pre-test (D0)
-          </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Box 1 -->
+        <div style="background:var(--blue);color:white;border-radius:14px;padding:20px">
+          <div style="font-size:13px;font-weight:800;margin-bottom:10px;opacity:0.8">🤖 การใช้ Gemini AI</div>
+          <ul style="list-style:none;padding:0;font-size:13px;line-height:2;opacity:0.95">
+            <li>• ช่วยสร้างคำถามและคำตอบ</li>
+            <li>• ช่วยสร้างคำอธิบายเฉลย</li>
+            <li>• ทบทวนแบบเว้นระยะเวลา</li>
+          </ul>
         </div>
-        <div style="font-size:28px;color:var(--text3);padding:0 12px">→</div>
-        <!-- Process -->
-        <div style="background:var(--blue);color:white;border-radius:14px;padding:20px 16px">
-          <div style="font-size:22px;margin-bottom:8px">⚙️</div>
-          <div style="font-size:13px;font-weight:800;margin-bottom:8px">PROCESS</div>
-          <div style="font-size:13px;opacity:0.9;line-height:1.7">
-            <strong>กลุ่มทดลอง:</strong><br>
-            MedVocab Quiz<br>D1 → D3 → D7<br>
-            <span style="opacity:0.7">Fixed-Interval Spaced Repetition</span>
-          </div>
+        <!-- Box 2 -->
+        <div style="background:var(--blue-xl);border:2px solid var(--blue);border-radius:14px;padding:20px">
+          <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:10px">⚙️ กระบวนการเรียนรู้</div>
+          <ul style="list-style:none;padding:0;font-size:13px;color:var(--text2);line-height:2">
+            <li>• ทบทวนแบบเว้นระยะห่าง</li>
+            <li>• ฝึกดึงข้อมูลจากความจำ</li>
+            <li>• พบคำศัพท์ซ้ำในช่วงเวลาที่เหมาะสม</li>
+          </ul>
         </div>
-        <div style="font-size:28px;color:var(--text3);padding:0 12px">→</div>
-        <!-- Output -->
-        <div style="background:var(--green-l);border:2px solid var(--green);border-radius:14px;padding:20px 16px">
-          <div style="font-size:22px;margin-bottom:8px">📊</div>
-          <div style="font-size:13px;font-weight:800;color:var(--green);margin-bottom:8px">OUTPUT</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.7">
-            Post-test (D14)<br>
-            <strong>Long-term Retention</strong><br>
-            วิเคราะห์ด้วย ANCOVA
-          </div>
+        <!-- Box 3 -->
+        <div style="background:var(--gold-l);border:2px solid var(--gold);border-radius:14px;padding:20px">
+          <div style="font-size:13px;font-weight:800;color:#7a5a00;margin-bottom:10px">⚠️ ปัจจัยที่เกี่ยวข้อง (Covariates)</div>
+          <ul style="list-style:none;padding:0;font-size:13px;color:var(--text2);line-height:2">
+            <li>• จำนวนและระดับความยากของคำศัพท์</li>
+            <li>• ความถี่และความสม่ำเสมอในการเข้าร่วม</li>
+            <li>• ระยะเวลาระหว่างเรียน-ทดสอบ</li>
+            <li>• รหัสนิสิต (เลขคู่/เลขคี่) → กลุ่ม A/B</li>
+          </ul>
         </div>
-      </div>
-      <!-- Confounding variables -->
-      <div style="margin-top:16px;background:var(--gold-l);border:1px solid var(--gold);border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:18px">⚠️</span>
-        <div style="font-size:14px;color:#7a5a00">
-          <strong>Confounding Variables ที่ควบคุม:</strong>
-          Pre-test score (covariate ใน ANCOVA) · ประสบการณ์การใช้ Flashcard app · เวลาทบทวนนอกระบบ
+        <!-- Box 4 -->
+        <div style="background:var(--green-l);border:2px solid var(--green);border-radius:14px;padding:20px">
+          <div style="font-size:13px;font-weight:800;color:var(--green);margin-bottom:10px">📊 ผลลัพธ์การเรียนรู้</div>
+          <ul style="list-style:none;padding:0;font-size:13px;color:var(--text2);line-height:2">
+            <li>• คะแนน Post-test (D14) — ตัวแปรตามหลัก</li>
+            <li>• Accuracy % (D1/D3/D7/D14) — ตัวแปรตามรอง</li>
+            <li>• วิเคราะห์ด้วย ANCOVA + Pre-test เป็น Covariate</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1198,93 +1219,86 @@ body {
 
     <div style="display:flex;flex-direction:column;gap:20px">
 
-      <!-- Ref 1 -->
+      <!-- Ref 13 -->
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--blue)">
         <div style="display:flex;align-items:flex-start;gap:16px">
-          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[1]</div>
+          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[13]</div>
           <div>
-            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Forgetting Curve — Ebbinghaus (1885)</div>
+            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Spaced Repetition in Medical Education — Systematic Review (PRISMA)</div>
             <div style="font-size:14px;color:var(--text2);line-height:1.8">
-              ค้นพบว่าความจำเสื่อมถอยตามเวลาในรูปแบบ exponential decay โดยหากไม่ทบทวน
-              จะลืมประมาณ <strong>70% ภายใน 24 ชั่วโมง</strong> เป็นพื้นฐานทางทฤษฎีของ Spaced Repetition ทั้งหมด
+              ทบทวนวรรณกรรมอย่างเป็นระบบตามแนวทาง PRISMA จากงานวิจัย <strong>14 เรื่อง</strong> รวมกลุ่มตัวอย่าง <strong>21,415 คน</strong> พบว่า Spaced Repetition ช่วยเพิ่มผลสัมฤทธิ์ทางการเรียนสูงกว่าวิธีปกติอย่างมีนัยสำคัญ โดยเฉพาะด้าน Long-term Retention เครื่องมือที่ศึกษา ได้แก่ Anki Flashcards, MCQs ทางอีเมล และแบบทดสอบในชั้นเรียน
             </div>
             <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
-              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Forgetting Curve</span>
-              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Memory Decay</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Medical Education</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Systematic Review</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Ref 2 -->
+      <!-- Ref 14 -->
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--blue)">
         <div style="display:flex;align-items:flex-start;gap:16px">
-          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[2]</div>
+          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[14]</div>
           <div>
-            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Spacing Effect Meta-analysis — Cepeda et al. (2006)</div>
+            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Spaced Repetition in CPD Programs — Healthcare Professionals (2022–2024)</div>
             <div style="font-size:14px;color:var(--text2);line-height:1.8">
-              Meta-analysis ครอบคลุม 317 studies พบว่า <strong>Distributed Practice ให้ผลดีกว่า Massed Practice</strong>
-              อย่างสม่ำเสมอ โดยเฉพาะเมื่อ retention interval ยาวขึ้น — สนับสนุนการใช้ D1/D3/D7 schedule
+              ศึกษาข้อมูลจากโครงการ CPD 3 โครงการ ปี 2022–2024 รวม <strong>1,859 คน</strong> พบว่าผู้เรียนที่ได้รับเนื้อหาก่อนมีคะแนนเพิ่มขึ้น <strong>31%</strong> และผู้เรียนซ้ำหลายครั้งมีพัฒนาการ <strong>34%</strong> สูงกว่าผู้เรียนครั้งแรก (26%) สนับสนุนว่าการทบทวนซ้ำส่งเสริมการคงอยู่ของความรู้ในบุคลากรทางการแพทย์
             </div>
             <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
-              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Spacing Effect</span>
-              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Meta-analysis</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Healthcare CPD</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Repeated Exposure</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Ref 3 -->
+      <!-- Ref 15 -->
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--gold)">
         <div style="display:flex;align-items:flex-start;gap:16px">
-          <div style="min-width:44px;height:44px;background:var(--gold);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[3]</div>
+          <div style="min-width:44px;height:44px;background:var(--gold);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[15]</div>
           <div>
-            <div style="font-size:14px;font-weight:800;color:#7a5a00;margin-bottom:4px">Testing Effect — Roediger &amp; Karpicke (2006)</div>
+            <div style="font-size:14px;font-weight:800;color:#7a5a00;margin-bottom:4px">Multi-AI Clinical Narratives for Pharmacology — Medical Students</div>
             <div style="font-size:14px;color:var(--text2);line-height:1.8">
-              พิสูจน์ว่า <strong>การทดสอบตัวเอง (Retrieval Practice)</strong> ช่วยเสริม Long-term Retention
-              ได้ดีกว่าการอ่านซ้ำอย่างมีนัยสำคัญ — เป็นหลักการหลักที่ Quiz ใน MedVocab ใช้
+              ใช้ AI หลายชนิดร่วมกัน (GPT-4, Stable Diffusion, ElevenLabs, Suno) สร้างเรื่องเล่าทางคลินิกรูปแบบภาพยนตร์สำหรับวิชาเภสัชวิทยาคลินิก กับนิสิตแพทย์ <strong>40 คน</strong> พบว่านิสิตมีความสนใจสูง และสามารถทำคะแนนเฉลี่ยได้ถึง <strong>88%</strong> สนับสนุนศักยภาพของ AI ในการสร้างสื่อการเรียนรู้ทางการแพทย์
             </div>
             <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
-              <span style="padding:3px 10px;background:var(--gold-l);color:#7a5a00;border-radius:6px;font-size:12px;font-weight:700">Retrieval Practice</span>
-              <span style="padding:3px 10px;background:var(--gold-l);color:#7a5a00;border-radius:6px;font-size:12px;font-weight:700">Testing Effect</span>
+              <span style="padding:3px 10px;background:var(--gold-l);color:#7a5a00;border-radius:6px;font-size:12px;font-weight:700">AI-Generated Content</span>
+              <span style="padding:3px 10px;background:var(--gold-l);color:#7a5a00;border-radius:6px;font-size:12px;font-weight:700">Engagement</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Ref 4 -->
-      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--blue)">
-        <div style="display:flex;align-items:flex-start;gap:16px">
-          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[4]</div>
-          <div>
-            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">Fixed vs Adaptive Scheduling — Mettler et al. (2016)</div>
-            <div style="font-size:14px;color:var(--text2);line-height:1.8">
-              เปรียบเทียบ Fixed-Interval กับ Adaptive-Interval Spaced Repetition พบว่า
-              Fixed schedule <strong>ยังคงให้ผลดีในสภาพแวดล้อมที่ต้องการ standardization</strong>
-              และควบคุม confounding ได้ดีกว่าในการออกแบบ RCT
-            </div>
-            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
-              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Fixed-Interval</span>
-              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">RCT Design</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ref 5 -->
+      <!-- Ref 16 -->
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--green)">
         <div style="display:flex;align-items:flex-start;gap:16px">
-          <div style="min-width:44px;height:44px;background:var(--green);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[5]</div>
+          <div style="min-width:44px;height:44px;background:var(--green);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[16]</div>
           <div>
-            <div style="font-size:14px;font-weight:800;color:var(--green);margin-bottom:4px">AI-assisted Medical Education — Zhu et al. (2023)</div>
+            <div style="font-size:14px;font-weight:800;color:var(--green);margin-bottom:4px">Automated AI (GPT-4o-mini) + Spaced Repetition for Diagnostic Skills</div>
             <div style="font-size:14px;color:var(--text2);line-height:1.8">
-              การใช้ AI ในการสร้างเนื้อหาการเรียนรู้ทางการแพทย์ช่วยเพิ่มประสิทธิภาพ
-              และลดภาระของอาจารย์ในการสร้างแบบฝึกหัด — สนับสนุนการใช้ Gemini AI
-              ในขั้นตอน <strong>content generation ของ MedVocab</strong>
+              ระบบ AI อัตโนมัติเต็มรูปแบบ (GPT-4o-mini) สร้างข้อสอบ MCQ + feedback เฉพาะบุคคล ตามหลัก Spaced Repetition <strong>5 วัน</strong> เนื้อหา: อาการปวดท้องเฉียบพลัน 5 โรค กับนิสิตแพทย์ <strong>71 คน</strong> (กลุ่มทดลอง 38 + ควบคุม 33) ประเมินด้วย OSVE พบว่ากลุ่มทดลองมีคะแนนสูงกว่าอย่างมีนัยสำคัญ ทั้งทันทีและหลัง 2 สัปดาห์ ข้อบกพร่องใน AI feedback เพียง 0.6%
             </div>
             <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
-              <span style="padding:3px 10px;background:var(--green-l);color:var(--green);border-radius:6px;font-size:12px;font-weight:700">AI in Medical Ed</span>
-              <span style="padding:3px 10px;background:var(--green-l);color:var(--green);border-radius:6px;font-size:12px;font-weight:700">Content Generation</span>
+              <span style="padding:3px 10px;background:var(--green-l);color:var(--green);border-radius:6px;font-size:12px;font-weight:700">AI Diagnostic</span>
+              <span style="padding:3px 10px;background:var(--green-l);color:var(--green);border-radius:6px;font-size:12px;font-weight:700">Spaced Repetition RCT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ref 17 -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-left:5px solid var(--blue)">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="min-width:44px;height:44px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900">[17]</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px">NotebookLM + DeepSeek สร้าง Anki Flashcards สำหรับ Active Recall</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.8">
+              ใช้ NotebookLM สรุปประเด็นสำคัญจากตำราวิสัญญีวิทยา (ยา Propofol) จากนั้นใช้ DeepSeek สร้าง Flashcards แบบ Cloze Deletion สำหรับ Anki พบว่า NotebookLM สรุปเนื้อหาได้ <strong>ตรงตำรา 100%</strong> และ DeepSeek สร้างบัตรคำที่เหมือนกัน <strong>89.7%</strong> ชี้ให้เห็นว่า AI ช่วยลดภาระสร้างสื่อ และสนับสนุน Active Recall ได้อย่างมีประสิทธิภาพ
+            </div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Anki + AI</span>
+              <span style="padding:3px 10px;background:var(--blue-xl);color:var(--blue);border-radius:6px;font-size:12px;font-weight:700">Active Recall</span>
             </div>
           </div>
         </div>
