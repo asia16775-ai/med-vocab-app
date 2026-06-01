@@ -627,8 +627,8 @@ body {
         <div style="display:inline-block;background:var(--blue-xl);color:var(--blue);font-size:13px;font-weight:800;padding:4px 14px;border-radius:20px;margin:10px 0 6px">n = 62 คน</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:14px">📐 Lehr's Formula: n = 16/Δ² , Δ = 0.80 (large effect) → n ≥ 25/กลุ่ม</div>
         <div class="group-split">
-          <div class="group-exp">🔬 กลุ่มทดลอง<br><small style="font-weight:500">รหัสนิสิต<br>เลขคี่ (n≈31)</small></div>
-          <div class="group-ctrl">📋 กลุ่มควบคุม<br><small style="font-weight:500">รหัสนิสิต<br>เลขคู่ (n≈31)</small></div>
+          <div class="group-exp">🔬 กลุ่ม A (ทดลอง)<br><small style="font-weight:500">รหัสนิสิต<br>เลขคี่ (n≈31)</small></div>
+          <div class="group-ctrl">📋 กลุ่ม B (ควบคุม)<br><small style="font-weight:500">รหัสนิสิต<br>เลขคู่ (n≈31)</small></div>
         </div>
       </div>
 
@@ -736,7 +736,7 @@ body {
         <!-- Randomize -->
         <div class="rct-box random" style="width:280px">
           🎲 Randomize โดย Student ID<br>
-          <small>รหัสคี่ → ทดลอง &nbsp;|&nbsp; รหัสคู่ → ควบคุม</small>
+          <small>รหัสคี่ → กลุ่ม A &nbsp;|&nbsp; รหัสคู่ → กลุ่ม B</small>
         </div>
         <div class="rct-v-arrow">↓</div>
 
@@ -744,14 +744,14 @@ body {
         <div class="rct-branch">
           <div class="rct-v">
             <div class="rct-box exp" style="width:220px">
-              🔬 กลุ่มทดลอง<br>
+              🔬 กลุ่ม A (ทดลอง)<br>
               <small>ใช้แอป MedVocab<br>Quiz วันที่ 1, 3, 7</small>
             </div>
           </div>
           <div style="align-self:center;font-size:28px;color:var(--text3)">⟷</div>
           <div class="rct-v">
             <div class="rct-box ctrl" style="width:220px">
-              📋 กลุ่มควบคุม<br>
+              📋 กลุ่ม B (ควบคุม)<br>
               <small>ทบทวนตามปกติ<br>ไม่ใช้ระบบ MedVocab</small>
             </div>
           </div>
@@ -792,7 +792,7 @@ body {
             <div><strong style="color:var(--green)">ขั้นที่ 1 — เตรียมการ</strong><br>
             <span style="padding-left:8px">สร้างบัญชีนิสิต, ชี้แจงขั้นตอน, แจกลิงค์แอป</span></div>
             <div style="margin-top:10px"><strong style="color:var(--green)">ขั้นที่ 2 — เก็บข้อมูล</strong><br>
-            <span style="padding-left:8px">Pre-test (D0) → Quiz D1/D3/D7 (กลุ่มทดลอง) → Post-test (D14)</span></div>
+            <span style="padding-left:8px">Pre-test (D0) → Quiz D1/D3/D7 (กลุ่ม A เท่านั้น) → Post-test (D14)</span></div>
           </div>
         </div>
       </div>
@@ -925,8 +925,8 @@ body {
     <div class="hypo-box">
       <h3>สมมุติฐานการวิจัย (Research Hypothesis)</h3>
       <div class="hypo-text">
-        H₁: กลุ่มทดลองที่ใช้ระบบ MedVocab Spaced Repetition ที่สร้างโดย Gemini AI
-        จะมี<strong>คะแนน Post-test สูงกว่า</strong>กลุ่มควบคุมที่ทบทวนด้วยวิธีปกติ
+        H₁: กลุ่ม A (ทดลอง) ที่ใช้ระบบ MedVocab Spaced Repetition ที่สร้างโดย Gemini AI
+        จะมี<strong>คะแนน Post-test สูงกว่า</strong>กลุ่ม B (ควบคุม) ที่ทบทวนด้วยวิธีปกติ
         อย่างมีนัยสำคัญทางสถิติ หลังควบคุมคะแนน Pre-test ด้วย ANCOVA
       </div>
       <div class="hypo-stat">
@@ -1048,7 +1048,7 @@ body {
         </div>
         <div style="padding:10px 10px 20px;background:#f0f2f5;min-height:360px;">
           <!-- group badge -->
-          <div style="display:inline-block;background:#e8eaf6;color:#003087;font-size:8px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:8px;">🔬 กลุ่มทดลอง (เลขคี่)</div>
+          <div style="display:inline-block;background:#e8eaf6;color:#003087;font-size:8px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:8px;">🔬 กลุ่ม A — ทดลอง (เลขคี่)</div>
           <!-- timeline card -->
           <div style="background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
             <div style="font-size:7px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📅 ตารางกิจกรรม</div>
@@ -1137,10 +1137,10 @@ body {
 
     <details style="background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:20px 24px;cursor:pointer;">
       <summary style="font-weight:700;font-size:16px;color:var(--blue);list-style:none;display:flex;justify-content:space-between;align-items:center;">
-        กลุ่มควบคุมได้รับอะไรบ้าง? <span style="font-size:20px;color:var(--text3);">+</span>
+        กลุ่ม B (ควบคุม) ได้รับอะไรบ้าง? <span style="font-size:20px;color:var(--text3);">+</span>
       </summary>
       <p style="margin-top:14px;color:var(--text2);font-size:15px;line-height:1.8;">
-        กลุ่มควบคุม (รหัสนิสิตเลขคู่) ทำ <strong>Pre-test</strong> ที่ Day 0 และ <strong>Post-test</strong> ที่ Day 14 เหมือนกัน แต่ <strong>ไม่ได้รับ</strong> Quiz Spaced Repetition ระหว่างนั้น นิสิตกลุ่มนี้เรียนรู้ตามปกติ ซึ่งทำให้สามารถเปรียบเทียบว่าระบบ MedVocab ช่วยเพิ่มคะแนนได้จริงหรือไม่
+        กลุ่ม B — ควบคุม (รหัสนิสิตเลขคู่) ทำ <strong>Pre-test</strong> ที่ Day 0 และ <strong>Post-test</strong> ที่ Day 14 เหมือนกัน แต่ <strong>ไม่ได้รับ</strong> Quiz Spaced Repetition ระหว่างนั้น นิสิตกลุ่มนี้เรียนรู้ตามปกติ ซึ่งทำให้สามารถเปรียบเทียบว่าระบบ MedVocab ช่วยเพิ่มคะแนนได้จริงหรือไม่
       </p>
     </details>
 
