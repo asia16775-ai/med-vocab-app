@@ -627,8 +627,8 @@ body {
         <div style="display:inline-block;background:var(--blue-xl);color:var(--blue);font-size:13px;font-weight:800;padding:4px 14px;border-radius:20px;margin:10px 0 6px">n = 62 คน</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:14px">📐 Lehr's Formula: n = 16/Δ² , Δ = 0.80 (large effect) → n ≥ 25/กลุ่ม</div>
         <div class="group-split">
-          <div class="group-exp">🔬 กลุ่ม A (ทดลอง)<br><small style="font-weight:500">รหัสนิสิต<br>เลขคี่ (n≈31)</small></div>
-          <div class="group-ctrl">📋 กลุ่ม B (ควบคุม)<br><small style="font-weight:500">รหัสนิสิต<br>เลขคู่ (n≈31)</small></div>
+          <div class="group-exp">🔬 กลุ่ม A (ทดลอง)<br><small style="font-weight:500">สุ่มด้วย Excel<br>RAND() (n≈31)</small></div>
+          <div class="group-ctrl">📋 กลุ่ม B (ควบคุม)<br><small style="font-weight:500">สุ่มด้วย Excel<br>RAND() (n≈31)</small></div>
         </div>
       </div>
 
@@ -735,8 +735,8 @@ body {
 
         <!-- Randomize -->
         <div class="rct-box random" style="width:280px">
-          🎲 Randomize โดย Student ID<br>
-          <small>รหัสคี่ → กลุ่ม A &nbsp;|&nbsp; รหัสคู่ → กลุ่ม B</small>
+          🎲 Simple Randomization (Excel RAND())<br>
+          <small>สุ่มรายชื่อนิสิตทั้งหมด → แบ่ง 2 กลุ่มเท่ากัน</small>
         </div>
         <div class="rct-v-arrow">↓</div>
 
@@ -988,7 +988,7 @@ body {
             <li>• จำนวนและระดับความยากของคำศัพท์</li>
             <li>• ความถี่และความสม่ำเสมอในการเข้าร่วม</li>
             <li>• ระยะเวลาระหว่างเรียน-ทดสอบ</li>
-            <li>• รหัสนิสิต (เลขคู่/เลขคี่) → กลุ่ม A/B</li>
+            <li>• ผลการสุ่ม (Excel RAND()) → กลุ่ม A/B</li>
           </ul>
         </div>
         <!-- Box 4 -->
@@ -1069,7 +1069,7 @@ body {
         </div>
         <div style="padding:10px 10px 20px;background:#f0f2f5;min-height:360px;">
           <!-- group badge -->
-          <div style="display:inline-block;background:#e8eaf6;color:#003087;font-size:8px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:8px;">🔬 กลุ่ม A — ทดลอง (เลขคี่)</div>
+          <div style="display:inline-block;background:#e8eaf6;color:#003087;font-size:8px;font-weight:700;padding:3px 8px;border-radius:20px;margin-bottom:8px;">🔬 กลุ่ม A — ทดลอง</div>
           <!-- timeline card -->
           <div style="background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
             <div style="font-size:7px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📅 ตารางกิจกรรม</div>
@@ -1161,7 +1161,7 @@ body {
         กลุ่ม B (ควบคุม) ได้รับอะไรบ้าง? <span style="font-size:20px;color:var(--text3);">+</span>
       </summary>
       <p style="margin-top:14px;color:var(--text2);font-size:15px;line-height:1.8;">
-        กลุ่ม B — ควบคุม (รหัสนิสิตเลขคู่) ทำ <strong>Pre-test</strong> ที่ Day 0 และ <strong>Post-test</strong> ที่ Day 14 เหมือนกัน แต่ <strong>ไม่ได้รับ</strong> Quiz Spaced Repetition ระหว่างนั้น นิสิตกลุ่มนี้เรียนรู้ตามปกติ ซึ่งทำให้สามารถเปรียบเทียบว่าระบบ MedVocab ช่วยเพิ่มคะแนนได้จริงหรือไม่
+        กลุ่ม B — ควบคุม (สุ่มด้วย Excel RAND()) ทำ <strong>Pre-test</strong> ที่ Day 0 และ <strong>Post-test</strong> ที่ Day 14 เหมือนกัน แต่ <strong>ไม่ได้รับ</strong> Quiz Spaced Repetition ระหว่างนั้น นิสิตกลุ่มนี้เรียนรู้ตามปกติ ซึ่งทำให้สามารถเปรียบเทียบว่าระบบ MedVocab ช่วยเพิ่มคะแนนได้จริงหรือไม่
       </p>
     </details>
 
