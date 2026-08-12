@@ -1,1491 +1,323 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MedVocab — มหาวิทยาลัยบูรพา</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-/* ========== CSS VARIABLES ========== */
-:root {
-    --primary:   #003087;
-    --primary-l: #0051CC;
-    --gold:      #C9A84C;
-    --gold-l:    #E8C96A;
-    --success:   #34C759;
-    --danger:    #FF3B30;
-    --warning:   #FF9F0A;
-    --card:      rgba(255,255,255,0.82);
-    --border:    rgba(0,0,0,0.08);
-    --shadow:    0 2px 20px rgba(0,48,135,0.10), 0 1px 4px rgba(0,48,135,0.06);
-    --radius:    22px;
-    --radius-sm: 14px;
-    --text:      #1C1C1E;
-    --text2:     #6E6E73;
-    --text3:     #AEAEB2;
-}
-[data-theme="dark"] {
-    --primary:   #5B9CF6;
-    --primary-l: #7FB3FF;
-    --gold:      #FFD60A;
-    --gold-l:    #FFE566;
-    --card:      rgba(28,28,32,0.88);
-    --border:    rgba(255,255,255,0.08);
-    --shadow:    0 2px 20px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.2);
-    --text:      #F2F2F7;
-    --text2:     #AEAEB2;
-    --text3:     #6E6E73;
-}
-[data-theme="dark"] body {
-    background: linear-gradient(160deg,#0A1628 0%,#0F1E35 35%,#121C2E 65%,#1A1508 100%);
-}
-[data-theme="dark"] .card { background:rgba(28,28,32,0.88); border-color:rgba(255,255,255,0.08); }
-[data-theme="dark"] input  { background:rgba(44,44,48,0.9)!important; color:#F2F2F7!important; border-color:rgba(255,255,255,0.12)!important; }
-[data-theme="dark"] input::placeholder { color:#6E6E73; }
-[data-theme="dark"] .choice-btn.correct   { color:#4ade80; }
-[data-theme="dark"] .choice-btn.incorrect { color:#f87171; }
-[data-theme="dark"] .choice-btn.neutral   { background:rgba(255,255,255,0.06); }
-[data-theme="dark"] .feedback.correct  { color:#4ade80; background:rgba(52,199,89,0.10); }
-[data-theme="dark"] .feedback.incorrect{ color:#f87171; background:rgba(255,59,48,0.10); }
-[data-theme="dark"] .exp-item.correct .exp-answer { color:#4ade80; }
-[data-theme="dark"] .exp-item.wrong    { background:rgba(255,255,255,0.04); border-left-color:rgba(255,255,255,0.15); }
-/* ===== timeline dark ===== */
-[data-theme="dark"] .tl-dot.dot-active { background:var(--primary); border-color:var(--primary); }
-[data-theme="dark"] .tl-dot.dot-locked { background:rgba(255,159,10,0.12); border-color:rgba(255,159,10,0.35); color:#FFB340; }
-[data-theme="dark"] .tl-dot.dot-future { background:rgba(91,156,246,0.08); border-color:rgba(91,156,246,0.18); }
-[data-theme="dark"] .tl-line           { background:linear-gradient(180deg,rgba(91,156,246,0.25),rgba(91,156,246,0.08)); }
-[data-theme="dark"] .tl-line.done      { background:linear-gradient(180deg,var(--success),rgba(52,199,89,0.2)); }
-[data-theme="dark"] .tl-score          { background:rgba(52,199,89,0.15); color:#4ade80; border-color:rgba(52,199,89,0.2); }
-[data-theme="dark"] .tl-tag-done       { background:rgba(52,199,89,0.12); color:#4ade80; border-color:rgba(52,199,89,0.2); }
-[data-theme="dark"] .tl-tag-active     { background:rgba(91,156,246,0.15); color:#7FB3FF; border-color:rgba(91,156,246,0.25); }
-[data-theme="dark"] .tl-tag-locked     { background:rgba(255,159,10,0.12); color:#FFB340; border-color:rgba(255,159,10,0.2); }
-[data-theme="dark"] .consent-info-item { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.08); }
-[data-theme="dark"] .home-group-exp    { background:rgba(0,48,135,0.25); }
-[data-theme="dark"] .home-group-ctrl   { background:rgba(201,168,76,0.18); }
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedVocab — เข้าสู่ระบบ</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('mv_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ===== THEME TOGGLE ===== */
-.theme-toggle {
-    position:fixed; top:16px; right:16px; z-index:999;
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--border);
-    background:var(--card); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-    box-shadow:var(--shadow); cursor:pointer; font-size:18px;
-    display:flex; align-items:center; justify-content:center;
-    transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
-}
-.theme-toggle:hover  { transform:scale(1.12); }
-.theme-toggle:active { transform:scale(0.92); }
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface-2: #f0f0f5;
+      --primary: #003087;
+      --primary-l: #0051CC;
+      --text: #1d1d1f;
+      --text-2: #6e6e73;
+      --border: rgba(0,0,0,0.08);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    [data-theme="dark"] {
+      --bg: #000000;
+      --surface: #1c1c1e;
+      --surface-2: #2c2c2e;
+      --primary: #4d9fff;
+      --primary-l: #6ab0ff;
+      --text: #f5f5f7;
+      --text-2: #98989d;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-    background: linear-gradient(160deg,#B8D4EF 0%,#D6E8F7 35%,#EBF3FB 65%,#F5EDD8 100%);
-    min-height:100vh; min-height:100dvh;
-    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-    padding:20px 16px;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom));
-}
-body::before {
-    content:''; position:fixed; bottom:-60px; left:-40px; right:-40px; height:200px;
-    background:linear-gradient(180deg,transparent,rgba(0,48,135,0.06));
-    border-radius:50%; pointer-events:none; z-index:0;
-}
-.screen { display:none; width:100%; max-width:440px; position:relative; z-index:1; }
-.screen.active { display:flex; flex-direction:column; gap:14px; animation:fadeUp 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-@keyframes fadeUp {
-    from { opacity:0; transform:translateY(24px) scale(0.97); }
-    to   { opacity:1; transform:translateY(0) scale(1); }
-}
+    body {
+      font-family: 'Inter', -apple-system, 'Helvetica Neue', sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #0a0f2c 0%, #003087 60%, #1565c0 100%);
+      padding: 24px;
+      transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    [data-theme="dark"] body {
+      background: linear-gradient(160deg, #000000 0%, #0a0a1a 60%, #001a4d 100%);
+    }
 
-/* ===== CARD ===== */
-.card {
-    background:var(--card); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%);
-    border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,0.6);
-}
+    #theme-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(12px);
+      transition: var(--transition);
+      z-index: 100;
+    }
+    #theme-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.25); }
+    #theme-btn:active { transform: scale(0.93); }
 
-/* ===== LOGO ===== */
-.logo-area { text-align:center; padding:8px 0 4px; }
-.logo-icon {
-    width:72px; height:72px; border-radius:20px;
-    background:linear-gradient(145deg,var(--primary),var(--primary-l));
-    display:inline-flex; align-items:center; justify-content:center;
-    font-size:36px; box-shadow:0 8px 24px rgba(0,48,135,0.3); margin-bottom:14px;
-}
-.logo-area h1 {
-    font-size:28px; font-weight:800; letter-spacing:-0.5px;
-    background:linear-gradient(135deg,var(--primary),var(--primary-l));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-}
-.logo-area .subtitle { font-size:13px; color:var(--text2); margin-top:4px; }
-.buu-badge {
-    display:inline-block; margin-top:10px; padding:4px 14px; border-radius:99px;
-    background:linear-gradient(135deg,var(--gold),var(--gold-l));
-    color:#5a3e00; font-size:11px; font-weight:700; box-shadow:0 2px 8px rgba(201,168,76,0.35);
-}
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-/* ===== INPUTS ===== */
-.input-wrap { position:relative; }
-.input-wrap .input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px; pointer-events:none; }
-input[type="text"] {
-    width:100%; padding:14px 16px 14px 44px;
-    border:1.5px solid var(--border); border-radius:var(--radius-sm);
-    font-size:16px; outline:none; letter-spacing:1.5px;
-    background:rgba(255,255,255,0.7); color:var(--text);
-    transition:border-color 0.2s, box-shadow 0.2s; font-family:inherit;
-}
-input[type="text"]:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,48,135,0.12); background:white; }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .logo h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .logo p {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-top: 4px;
+    }
 
-/* ===== BUTTONS ===== */
-.btn {
-    width:100%; padding:15px; border:none; border-radius:var(--radius-sm);
-    font-size:16px; font-weight:700; cursor:pointer;
-    transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1); font-family:inherit;
-}
-.btn:active { transform:scale(0.97); }
-.btn-primary {
-    background:linear-gradient(135deg,var(--primary),var(--primary-l));
-    color:white; box-shadow:0 4px 16px rgba(0,48,135,0.35);
-}
-.btn-primary:hover { box-shadow:0 6px 20px rgba(0,48,135,0.45); transform:translateY(-1px); }
-.btn-primary:active { transform:scale(0.97); }
-.btn-primary:disabled { background:#C8D8F0; box-shadow:none; transform:none; cursor:not-allowed; }
-.btn-gold {
-    background:linear-gradient(135deg,var(--gold),var(--gold-l));
-    color:#3d2a00; box-shadow:0 4px 16px rgba(201,168,76,0.35);
-}
-.btn-gold:hover { box-shadow:0 6px 20px rgba(201,168,76,0.45); transform:translateY(-1px); }
-.btn-ghost {
-    background:rgba(0,48,135,0.06); color:var(--primary);
-    border:1.5px solid rgba(0,48,135,0.15); margin-top:10px;
-}
-.btn-ghost:hover { background:rgba(0,48,135,0.1); }
-.btn-danger { background:linear-gradient(135deg,#FF3B30,#FF6B63); color:white; }
+    .field {
+      margin-bottom: 14px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: var(--transition);
+      -webkit-appearance: none;
+    }
+    .field input:focus {
+      border-color: var(--primary);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px rgba(0,48,135,0.12);
+    }
+    [data-theme="dark"] .field input:focus {
+      box-shadow: 0 0 0 3px rgba(77,159,255,0.2);
+    }
+    .field input::placeholder { color: var(--text-2); opacity: 0.7; }
 
-/* ===== SECTION LABEL ===== */
-.section-title {
-    font-size:12px; font-weight:700; color:var(--text2);
-    text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;
-}
+    #error-msg {
+      display: none;
+      background: #fff0f0;
+      color: #c0392b;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    [data-theme="dark"] #error-msg {
+      background: rgba(192,57,43,0.15);
+      color: #ff6b6b;
+    }
+    #error-msg.show { display: block; }
 
-/* ===== PROGRESS ===== */
-.progress-wrap { background:rgba(0,48,135,0.08); border-radius:99px; height:8px; overflow:hidden; }
-.progress-fill {
-    background:linear-gradient(90deg,var(--primary),var(--primary-l),#C9A84C);
-    height:100%; border-radius:99px; transition:width 0.55s cubic-bezier(0.34,1.56,0.64,1);
-    position:relative; overflow:hidden;
-}
-.progress-fill::after {
-    content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
-    animation:shimmer 2.2s ease-in-out infinite;
-}
-@keyframes shimmer { 0%{left:-100%;opacity:0;} 10%{opacity:1;} 60%{left:150%;opacity:0;} 100%{left:150%;opacity:0;} }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-6px); }
+      80%      { transform: translateX(6px); }
+    }
+    .shake { animation: shake 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-/* ===== THINK ANIMATION ===== */
-.think-anim { display:flex; align-items:center; justify-content:center; gap:10px; padding:6px 0 10px; }
-.think-icon { font-size:20px; animation:thinkFloat 2s ease-in-out infinite; display:inline-block; }
-.think-dots { display:flex; gap:5px; align-items:center; }
-.think-dot { width:7px; height:7px; border-radius:50%; background:var(--primary); opacity:0.25; animation:thinkPulse 1.4s ease-in-out infinite; }
-.think-dot:nth-child(2) { animation-delay:0.2s; }
-.think-dot:nth-child(3) { animation-delay:0.4s; }
-@keyframes thinkFloat { 0%,100%{transform:translateY(0) rotate(-5deg);} 50%{transform:translateY(-5px) rotate(5deg);} }
-@keyframes thinkPulse { 0%,80%,100%{transform:scale(0.7);opacity:0.2;} 40%{transform:scale(1.2);opacity:1;} }
-.think-anim.answered .think-dot { animation:none; opacity:0.12; }
-.think-anim.answered .think-icon { animation:none; }
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 4px;
+    }
+    .btn-primary:hover { background: var(--primary-l); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ===== QUESTION BOX ===== */
-.question-box {
-    background:linear-gradient(145deg,var(--primary) 0%,#0051CC 60%,#0066FF 100%);
-    border-radius:18px; padding:20px 20px 22px; color:white; text-align:center;
-    margin-bottom:16px; box-shadow:0 6px 20px rgba(0,48,135,0.3); position:relative; overflow:hidden;
-}
-.question-box::before { content:''; position:absolute; top:-30px; right:-30px; width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,0.07); pointer-events:none; }
-.question-box::after  { content:''; position:absolute; bottom:-20px; left:-20px; width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,0.05); pointer-events:none; }
-.chapter-tag { display:inline-block; background:rgba(255,255,255,0.2); border-radius:99px; padding:3px 12px; font-size:11px; font-weight:600; letter-spacing:0.5px; margin-bottom:10px; backdrop-filter:blur(4px); }
-.question-text { font-size:16px; font-weight:700; line-height:1.55; position:relative; z-index:1; }
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 10px;
+    }
+    .btn-secondary:hover { background: rgba(0,48,135,0.06); }
+    [data-theme="dark"] .btn-secondary:hover { background: rgba(77,159,255,0.1); }
+    .btn-secondary:active { transform: scale(0.97); }
 
-/* ===== CHOICES ===== */
-.choices { display:flex; flex-direction:column; gap:9px; }
-.choice-btn {
-    padding:13px 16px; border:1.5px solid var(--border); border-radius:var(--radius-sm);
-    background:rgba(255,255,255,0.7); text-align:left; font-size:14px;
-    cursor:pointer; transition:all 0.18s cubic-bezier(0.34,1.56,0.64,1);
-    color:var(--text); line-height:1.4; font-family:inherit; font-weight:500;
-}
-.choice-btn:hover:not(:disabled) { border-color:var(--primary); background:white; transform:translateX(3px); box-shadow:0 2px 12px rgba(0,48,135,0.12); }
-.choice-btn:active:not(:disabled) { transform:scale(0.98); }
-.choice-btn.correct   { border-color:var(--success); background:rgba(52,199,89,0.1); color:#1a6e30; font-weight:700; }
-.choice-btn.incorrect { border-color:var(--danger);  background:rgba(255,59,48,0.1); color:#991b1b; font-weight:700; }
-.choice-btn.neutral   { border-color:var(--border); background:rgba(255,255,255,0.4); color:var(--text3); }
-.choice-btn:disabled  { cursor:default; transform:none; }
+    .admin-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-2);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .admin-link:hover { color: var(--primary); }
 
-/* ===== FEEDBACK ===== */
-.feedback {
-    text-align:center; padding:12px 16px; border-radius:var(--radius-sm);
-    font-weight:700; font-size:14px; display:none; margin-top:12px;
-    animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-.feedback.show     { display:block; }
-.feedback.correct  { background:rgba(52,199,89,0.15); color:#1a6e30; border:1px solid rgba(52,199,89,0.3); }
-.feedback.incorrect{ background:rgba(255,59,48,0.12); color:#991b1b; border:1px solid rgba(255,59,48,0.25); }
-@keyframes popIn { from{opacity:0;transform:scale(0.9);} to{opacity:1;transform:scale(1);} }
-
-/* ===== EXPLAIN ITEMS ===== */
-.exp-item { border-radius:12px; padding:12px 14px; margin-bottom:8px; border-left:4px solid var(--border); }
-.exp-item.correct { border-left-color:var(--success); background:rgba(52,199,89,0.08); }
-.exp-item.wrong   { border-left-color:rgba(0,0,0,0.1); background:rgba(0,0,0,0.03); }
-.exp-item .exp-answer { font-weight:700; font-size:13px; color:var(--text); margin-bottom:4px; }
-.exp-item.correct .exp-answer { color:#1a6e30; }
-.exp-item .exp-desc { font-size:12px; color:var(--text2); line-height:1.55; }
-
-/* ===== ACTION BUTTON ===== */
-.btn-action {
-    width:100%; padding:14px; border:none; border-radius:var(--radius-sm);
-    font-size:15px; font-weight:700; cursor:pointer;
-    background:linear-gradient(135deg,var(--primary),var(--primary-l)); color:white;
-    margin-top:12px; display:none;
-    transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1); font-family:inherit;
-    box-shadow:0 4px 14px rgba(0,48,135,0.3);
-}
-.btn-action:hover  { transform:translateY(-1px); box-shadow:0 6px 18px rgba(0,48,135,0.4); }
-.btn-action:active { transform:scale(0.98); }
-.btn-action.show   { display:block; animation:fadeUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-.btn-action.gold   { background:linear-gradient(135deg,var(--gold),var(--gold-l)); color:#3d2a00; box-shadow:0 4px 14px rgba(201,168,76,0.35); }
-
-/* ===== STATS ===== */
-.stats-row { display:flex; gap:10px; }
-.stat-box { flex:1; border-radius:16px; padding:14px 10px; text-align:center; background:rgba(0,48,135,0.05); border:1px solid rgba(0,48,135,0.08); }
-.stat-box .value { font-size:26px; font-weight:800; color:var(--primary); letter-spacing:-0.5px; }
-.stat-box .label { font-size:11px; color:var(--text2); margin-top:3px; font-weight:600; }
-
-/* ===== SCORE BIG ===== */
-.score-big {
-    font-size:56px; font-weight:800; text-align:center; letter-spacing:-2px;
-    background:linear-gradient(135deg,var(--primary),var(--primary-l));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-}
-
-/* ===== RESULT LIST ===== */
-.result-list { display:flex; flex-direction:column; gap:8px; }
-.result-item { display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:12px; background:rgba(255,255,255,0.6); font-size:13px; border:1px solid var(--border); }
-.result-item .word-text { font-weight:600; flex:1; color:var(--text); }
-
-/* ===== SKELETON ===== */
-.skeleton { background:rgba(0,48,135,0.07); border-radius:12px; position:relative; overflow:hidden; }
-.skeleton::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent); transform:translateX(-100%); animation:skShimmer 1.6s ease-in-out infinite; }
-@keyframes skShimmer { to{transform:translateX(100%);} }
-[data-theme="dark"] .skeleton { background:rgba(255,255,255,0.06); }
-[data-theme="dark"] .skeleton::after { background:linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent); }
-.skel-gap { display:flex; flex-direction:column; gap:10px; }
-
-/* ===== RESULT ANIMATIONS ===== */
-.result-pop { animation:resultPop 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
-@keyframes resultPop { from{opacity:0;transform:scale(0.5);} to{opacity:1;transform:scale(1);} }
-@keyframes statPop   { from{opacity:0;transform:translateY(18px);} to{opacity:1;transform:translateY(0);} }
-@keyframes listFadeUp{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
-
-/* ===== LOADING ===== */
-.loading-box { text-align:center; padding:36px 20px; }
-.spinner { width:40px; height:40px; border:3px solid rgba(0,48,135,0.15); border-top-color:var(--primary); border-radius:50%; animation:spin 0.75s linear infinite; margin:0 auto 16px; }
-@keyframes spin { to{transform:rotate(360deg);} }
-
-/* ===== MISC ===== */
-.error-msg   { color:var(--danger); font-size:13px; text-align:center; font-weight:600; }
-.q-counter   { font-size:13px; color:var(--text2); font-weight:700; font-variant-numeric:tabular-nums; }
-h2 { font-size:19px; font-weight:800; color:var(--text); letter-spacing:-0.3px; }
-p  { color:var(--text2); font-size:14px; line-height:1.6; }
-.quiz-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.day-badge { display:inline-block; padding:4px 14px; border-radius:99px; font-size:12px; font-weight:700; }
-.day-badge.normal   { background:rgba(0,48,135,0.1); color:var(--primary); }
-.day-badge.posttest { background:linear-gradient(135deg,var(--gold),var(--gold-l)); color:#5a3e00; }
-.day-badge.pretest  { background:rgba(52,199,89,0.12); color:#1a6e30; border:1px solid rgba(52,199,89,0.25); }
-.wait-countdown { font-size:44px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-1px; background:linear-gradient(135deg,var(--primary),var(--primary-l)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.done-icon { width:88px; height:88px; border-radius:24px; margin:0 auto 18px; background:linear-gradient(145deg,var(--gold),var(--gold-l)); display:flex; align-items:center; justify-content:center; font-size:44px; box-shadow:0 8px 28px rgba(201,168,76,0.4); }
-
-/* ===== ★ TIMELINE v2 ===== */
-.tl-wrap { display:flex; flex-direction:column; }
-.tl-step { display:flex; gap:14px; align-items:flex-start; }
-.tl-dot-col { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:40px; }
-.tl-dot {
-    width:40px; height:40px; border-radius:50%; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    font-size:16px; font-weight:800; border:2px solid; transition:all 0.3s;
-}
-.tl-dot.dot-done {
-    background:var(--success); border-color:var(--success); color:white;
-    box-shadow:0 3px 12px rgba(52,199,89,0.45); font-size:18px;
-}
-.tl-dot.dot-active {
-    background:var(--primary); border-color:var(--primary); color:white;
-    box-shadow:0 3px 16px rgba(0,48,135,0.5);
-    animation:tlPulse 2s ease-in-out infinite;
-}
-.tl-dot.dot-locked {
-    background:rgba(255,159,10,0.1); border-color:rgba(255,159,10,0.4); color:#8B5500;
-}
-.tl-dot.dot-skip {
-    background:rgba(0,0,0,0.03); border-color:rgba(0,0,0,0.1);
-    border-style:dashed; color:var(--text3); font-size:13px;
-}
-.tl-dot.dot-future {
-    background:rgba(0,48,135,0.04); border-color:rgba(0,48,135,0.12); color:var(--text3); font-size:13px;
-}
-@keyframes tlPulse {
-    0%,100% { box-shadow:0 3px 16px rgba(0,48,135,0.5); }
-    50%      { box-shadow:0 3px 24px rgba(0,48,135,0.7), 0 0 0 5px rgba(0,48,135,0.1); }
-}
-.tl-line { width:2px; min-height:18px; flex:1; margin:2px 0; background:linear-gradient(180deg,rgba(0,48,135,0.18),rgba(0,48,135,0.06)); border-radius:2px; }
-.tl-line.done { background:linear-gradient(180deg,var(--success),rgba(52,199,89,0.25)); }
-.tl-body { flex:1; padding:8px 0 18px; }
-.tl-name { font-size:14px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-.tl-meta { margin-top:5px; display:flex; flex-wrap:wrap; gap:5px; }
-.tl-score {
-    display:inline-block; padding:1px 9px; border-radius:99px;
-    font-size:11px; font-weight:700;
-    background:rgba(52,199,89,0.15); color:#1a6e30; border:1px solid rgba(52,199,89,0.25);
-}
-.tl-tag { display:inline-block; padding:2px 10px; border-radius:99px; font-size:11px; font-weight:700; border:1px solid; }
-.tl-tag-done   { background:rgba(52,199,89,0.1);  color:#1a6e30; border-color:rgba(52,199,89,0.2); }
-.tl-tag-active { background:rgba(0,48,135,0.08);  color:var(--primary); border-color:rgba(0,48,135,0.18); }
-.tl-tag-locked { background:rgba(255,159,10,0.1); color:#8B5500; border-color:rgba(255,159,10,0.2); }
-.tl-tag-skip   { background:rgba(0,0,0,0.04); color:var(--text3); border-color:rgba(0,0,0,0.08); }
-
-/* ===== HOME SCREEN ===== */
-.home-greeting { display:flex; justify-content:space-between; align-items:center; gap:10px; }
-.home-greet-name { font-size:18px; font-weight:800; color:var(--primary); margin-top:2px; }
-.home-greet-sub  { font-size:12px; color:var(--text2); font-weight:600; }
-.home-group-tag {
-    padding:5px 12px; border-radius:99px; font-size:11px; font-weight:700; flex-shrink:0;
-    text-align:center; line-height:1.4;
-}
-.home-group-exp { background:rgba(0,48,135,0.1); color:var(--primary); border:1px solid rgba(0,48,135,0.2); }
-.home-group-ctrl{ background:rgba(201,168,76,0.15); color:#5a3e00; border:1px solid rgba(201,168,76,0.3); }
-
-/* ===== ACTION CARD ===== */
-.action-icon-big { font-size:40px; margin-bottom:10px; }
-.action-title { font-size:17px; font-weight:800; color:var(--text); }
-.action-sub   { font-size:13px; color:var(--text2); margin-top:4px; }
-.action-countdown-wrap { padding:10px 0 6px; }
-.action-cdlabel { font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
-.action-cdvalue { font-size:40px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-1px; background:linear-gradient(135deg,var(--primary),var(--primary-l)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.action-cddate  { font-size:12px; color:var(--text3); margin-top:4px; font-weight:600; }
-
-/* ===== CONSENT SCREEN ===== */
-.consent-header { text-align:center; }
-.consent-header .consent-icon { font-size:52px; margin-bottom:14px; display:block; }
-.consent-info-item {
-    display:flex; gap:12px; align-items:flex-start;
-    padding:12px 14px; border-radius:14px; margin-bottom:10px;
-    background:rgba(0,48,135,0.04); border:1px solid rgba(0,48,135,0.08);
-}
-.consent-info-item .ci-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
-.consent-info-item .ci-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
-.consent-info-item .ci-desc  { font-size:12px; color:var(--text2); line-height:1.6; }
-.consent-pdpa {
-    background:rgba(52,199,89,0.07); border:1px solid rgba(52,199,89,0.2);
-    border-radius:12px; padding:12px 14px; margin-bottom:14px;
-    font-size:12px; color:#1a6e30; text-align:center; line-height:1.6;
-}
-[data-theme="dark"] .consent-pdpa { background:rgba(52,199,89,0.08); color:#4ade80; border-color:rgba(52,199,89,0.18); }
-[data-theme="dark"] .consent-info-item { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.08); }
-</style>
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px; }
+    }
+  </style>
 </head>
 <body>
+  <button id="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
 
-<!-- ========== LOGIN ========== -->
-<div id="screen-login" class="screen active">
-    <div class="card">
-        <div class="logo-area">
-            <div class="logo-icon">🩺</div>
-            <h1>MedVocab</h1>
-            <p class="subtitle">ระบบฝึกคำศัพท์การแพทย์เพื่อการวิจัย</p>
-            <span class="buu-badge">🎓 มหาวิทยาลัยบูรพา</span>
-        </div>
-    </div>
-    <div class="card">
-        <p class="section-title">เข้าสู่ระบบ</p>
-        <div class="input-wrap">
-            <span class="input-icon">🎓</span>
-            <input type="text" id="input-student-id" placeholder="รหัสนิสิต เช่น 67200001" maxlength="10" />
-        </div>
-        <div id="login-error" class="error-msg" style="margin-top:8px"></div>
-        <button class="btn btn-primary" id="btn-login" style="margin-top:14px" onclick="handleLogin()">เข้าสู่ระบบ →</button>
-        <button class="btn btn-ghost" onclick="window.location.href='admin.html'">🔐 ผู้ดูแลระบบ</button>
-    </div>
-</div>
-
-<!-- ========== LOADING (skeleton) ========== -->
-<div id="screen-loading" class="screen">
-    <div class="card">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-            <div class="skeleton" style="width:52px;height:52px;border-radius:16px;flex-shrink:0"></div>
-            <div style="flex:1" class="skel-gap">
-                <div class="skeleton" style="height:16px;width:60%"></div>
-                <div class="skeleton" style="height:12px;width:40%"></div>
-            </div>
-        </div>
-        <div class="skeleton" style="height:10px;border-radius:99px"></div>
-    </div>
-    <div class="card skel-gap">
-        <div class="skeleton" style="height:120px;border-radius:16px"></div>
-        <div class="skeleton" style="height:48px;border-radius:14px"></div>
-        <div class="skeleton" style="height:48px;border-radius:14px"></div>
-        <div class="skeleton" style="height:48px;border-radius:14px"></div>
-    </div>
-</div>
-
-<!-- ========== CONSENT ========== -->
-<div id="screen-consent" class="screen">
-    <div class="card">
-        <div class="consent-header">
-            <span class="consent-icon">📋</span>
-            <h2 style="font-size:20px;margin-bottom:6px">แบบยินยอมเข้าร่วมวิจัย</h2>
-            <p style="font-size:13px;line-height:1.6">
-                โครงการ: ระบบฝึกคำศัพท์การแพทย์ผ่าน Spaced Repetition<br>
-                <span style="font-size:11px;color:var(--text3)">คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</span>
-            </p>
-        </div>
+  <div class="card" id="login-card">
+    <div class="logo">
+      <span class="logo-icon">🩺</span>
+      <h1>MedVocab</h1>
+      <p>ระบบทบทวนคำศัพท์ทางการแพทย์ · โลหิตวิทยา</p>
     </div>
 
-    <div class="card" style="padding:18px">
-        <div class="consent-info-item">
-            <span class="ci-icon">🔍</span>
-            <div>
-                <div class="ci-title">วัตถุประสงค์</div>
-                <div class="ci-desc">ศึกษาประสิทธิภาพของระบบ Spaced Repetition ในการเรียนรู้คำศัพท์การแพทย์ของนิสิตแพทย์ชั้นปีที่ 3</div>
-            </div>
-        </div>
-        <div class="consent-info-item">
-            <span class="ci-icon">📅</span>
-            <div>
-                <div class="ci-title">ขั้นตอนการเข้าร่วม</div>
-                <div class="ci-desc">
-                    <strong>Pre-test</strong> — ทดสอบก่อนเรียน 15 ข้อ (วันนี้)<br>
-                    <strong>Quiz</strong> — ทบทวน 5 ข้อ วันที่ 1 / 3 / 7 (กลุ่มทดลอง)<br>
-                    <strong>Post-test</strong> — ทดสอบหลังเรียน 15 ข้อ (วันที่ 14)
-                </div>
-            </div>
-        </div>
-        <div class="consent-info-item">
-            <span class="ci-icon">⏱️</span>
-            <div>
-                <div class="ci-title">ระยะเวลา</div>
-                <div class="ci-desc">ประมาณ 14 วัน — ใช้เวลาแต่ละครั้งไม่เกิน 10 นาที ไม่จำกัดเวลาในการตอบ</div>
-            </div>
-        </div>
-        <div class="consent-info-item">
-            <span class="ci-icon">🔒</span>
-            <div>
-                <div class="ci-title">ความเป็นส่วนตัว (PDPA)</div>
-                <div class="ci-desc">เก็บเพียงรหัสนิสิตและคะแนนแบบทดสอบ — ไม่มีชื่อ ไม่มีข้อมูลส่วนตัวอื่น ข้อมูลใช้เพื่องานวิจัยเท่านั้น</div>
-            </div>
-        </div>
-        <div class="consent-info-item">
-            <span class="ci-icon">🙋</span>
-            <div>
-                <div class="ci-title">สิทธิ์ผู้เข้าร่วม</div>
-                <div class="ci-desc">การเข้าร่วมเป็น<strong>ความสมัครใจ</strong> ท่านสามารถถอนตัวจากการวิจัยได้ตลอดเวลา โดยไม่มีผลต่อการเรียน</div>
-            </div>
-        </div>
+    <div class="field">
+      <label for="username">เลขประจำตัวนิสิต</label>
+      <input type="text" id="username" placeholder="กรอกเลขประจำตัวนิสิต" autocomplete="off" autocapitalize="none" inputmode="numeric">
     </div>
 
-    <div class="card" style="padding:18px">
-        <div class="consent-pdpa">
-            🔐 ข้าพเจ้าได้อ่านและเข้าใจข้อมูลข้างต้นแล้ว<br>และยินยอมให้เก็บข้อมูลตามวัตถุประสงค์ของการวิจัยนี้
-        </div>
-        <button class="btn btn-primary" onclick="giveConsent()">✅ ยืนยันเข้าร่วมการทดลอง</button>
-        <button class="btn btn-ghost" onclick="logout()">ไม่เข้าร่วม / ออกจากระบบ</button>
-    </div>
-</div>
+    <div id="error-msg"></div>
 
-<!-- ========== HOME ========== -->
-<div id="screen-home" class="screen">
-    <!-- Greeting card -->
-    <div class="card" style="padding:18px 20px">
-        <div class="home-greeting">
-            <div>
-                <div class="home-greet-sub">สวัสดี 👋</div>
-                <div class="home-greet-name" id="home-student-id">—</div>
-            </div>
-            <div id="home-group-badge"></div>
-        </div>
-    </div>
+    <button class="btn-primary" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
 
-    <!-- Timeline card -->
-    <div class="card" style="padding:20px 20px 10px">
-        <p class="section-title" style="margin-bottom:16px">📅 ตารางการทดสอบ</p>
-        <div class="tl-wrap" id="home-timeline"></div>
-    </div>
+    <a href="admin_login.html" class="admin-link">เข้าสู่ระบบผู้วิจัย</a>
+  </div>
 
-    <!-- Action card -->
-    <div class="card" id="home-action-card" style="padding:22px"></div>
+  <script src="js/config.js"></script>
+  <script>
+    initTheme();
+    document.getElementById('theme-btn').textContent =
+      document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
 
-    <!-- Logout -->
-    <div class="card" style="padding:12px 16px">
-        <button class="btn btn-ghost" style="margin-top:0" onclick="logout()">ออกจากระบบ</button>
-    </div>
-</div>
+    // Redirect if already logged in
+    sessionStorage.removeItem('mv_sim_user'); // clear simulate session
+    if (localStorage.getItem('mv_current')) location.href = 'home.html';
+    if (sessionStorage.getItem('mv_admin')) location.href = 'admin.html';
 
-<!-- ========== QUIZ ========== -->
-<div id="screen-quiz" class="screen">
-    <div class="card">
-        <div class="quiz-header">
-            <span class="q-counter" id="q-counter">ข้อ 1 / 5</span>
-            <span id="quiz-day-badge"></span>
-        </div>
-        <div class="progress-wrap">
-            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="think-anim" id="think-anim">
-            <span class="think-icon">🩺</span>
-            <div class="think-dots">
-                <div class="think-dot"></div>
-                <div class="think-dot"></div>
-                <div class="think-dot"></div>
-            </div>
-        </div>
-        <div class="question-box">
-            <span class="chapter-tag" id="q-chapter">—</span>
-            <div class="question-text" id="q-text">—</div>
-        </div>
-        <div class="choices" id="choices-container"></div>
-        <div class="feedback" id="feedback"></div>
-        <button class="btn-action gold" id="btn-explain" onclick="showExplainScreen()" style="display:none">
-            📖 ดูเฉลยทุกตัวเลือก →
-        </button>
-    </div>
-</div>
-
-<!-- ========== EXPLAIN ========== -->
-<div id="screen-explain" class="screen">
-    <div class="card" id="explain-result-card" style="text-align:center;padding:20px 20px 16px">
-        <div id="explain-verdict" style="font-size:36px;margin-bottom:6px"></div>
-        <div id="explain-verdict-text" style="font-size:16px;font-weight:800;color:var(--text)"></div>
-        <div id="explain-correct-word" style="font-size:13px;color:var(--text2);margin-top:4px"></div>
-    </div>
-    <div class="card">
-        <p style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">🔍 ความหมายแต่ละตัวเลือก</p>
-        <div id="explain-choices-list"></div>
-    </div>
-    <div class="card" style="padding:12px 16px">
-        <button class="btn-action gold show" id="btn-next-from-explain" onclick="goToNext()">ข้อต่อไป →</button>
-    </div>
-</div>
-
-<!-- ========== RESULT ========== -->
-<div id="screen-result" class="screen">
-    <div class="card" style="text-align:center">
-        <p id="result-day-label" style="font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px"></p>
-        <div class="score-big" id="result-score">0/5</div>
-        <p id="result-sub" style="margin-top:6px;font-weight:700;font-size:15px;color:var(--primary)"></p>
-    </div>
-    <div class="card">
-        <div class="stats-row">
-            <div class="stat-box"><div class="value" id="r-correct">0</div><div class="label">ตอบถูก ✅</div></div>
-            <div class="stat-box"><div class="value" id="r-wrong">0</div><div class="label">ตอบผิด ❌</div></div>
-            <div class="stat-box"><div class="value" id="r-pct">0%</div><div class="label">ความแม่นยำ 🎯</div></div>
-        </div>
-    </div>
-    <div class="card">
-        <p class="section-title">สรุปรายข้อ</p>
-        <div class="result-list" id="result-list"></div>
-    </div>
-    <div class="card" id="next-session-card">
-        <div id="next-session-info" style="background:rgba(0,48,135,0.06);border:1px solid rgba(0,48,135,0.12);border-radius:14px;padding:14px 16px;text-align:center;font-size:13px;color:var(--primary);font-weight:700"></div>
-    </div>
-    <div class="card" style="display:flex;flex-direction:column;gap:10px;padding:14px 16px">
-        <button class="btn btn-primary" onclick="goHome()">🏠 กลับหน้าหลัก</button>
-        <button class="btn btn-ghost" style="margin-top:0" onclick="logout()">ออกจากระบบ</button>
-    </div>
-</div>
-
-<!-- ========== DEMO START ========== -->
-<div id="screen-demo" class="screen">
-    <div class="card" style="text-align:center;padding:32px 24px 24px">
-        <div style="font-size:56px;margin-bottom:12px">🩺</div>
-        <div style="display:inline-block;padding:4px 14px;border-radius:50px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);font-size:11px;font-weight:800;color:var(--gold);letter-spacing:0.5px;margin-bottom:14px">DEMO MODE</div>
-        <h2 style="font-size:22px;color:var(--primary);margin-bottom:8px">ทดลองทำ Quiz</h2>
-        <p style="font-size:14px;line-height:1.7;color:var(--text2)">
-            ทดสอบคำศัพท์การแพทย์ 5 ข้อ<br>จากการวิจัย Spaced Repetition
-        </p>
-    </div>
-    <div class="card" style="padding:18px">
-        <div style="background:rgba(0,48,135,0.05);border-radius:14px;padding:14px 16px;margin-bottom:14px">
-            <p style="font-size:13px;line-height:1.7;color:var(--text)">
-                📋 <strong>เกี่ยวกับการวิจัยนี้</strong><br>
-                ศึกษาประสิทธิผลของ Spaced Repetition ในการจดจำคำศัพท์การแพทย์ของนิสิตแพทย์ชั้นปีที่ 3 — คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา
-            </p>
-        </div>
-        <button class="btn btn-primary" onclick="startDemoQuiz()">🎮 เริ่มทำ Quiz →</button>
-        <button class="btn btn-ghost" style="margin-top:8px" onclick="window.location.href=(isDemoMode?'present.html':'index.html')">กลับหน้าหลัก</button>
-    </div>
-</div>
-
-<!-- ========== ALL DONE ========== -->
-<div id="screen-done" class="screen">
-    <div class="card" style="text-align:center;padding:36px 24px">
-        <div class="done-icon">🎓</div>
-        <h2 style="font-size:26px;color:var(--primary)">ขอบคุณมาก!</h2>
-        <p style="margin-top:10px;line-height:1.7">คุณทำแบบฝึกหัดครบทุกรอบแล้ว<br>ขอบคุณที่เข้าร่วมการวิจัยนี้ 🙏</p>
-        <div style="margin-top:16px;padding:14px;background:rgba(201,168,76,0.1);border-radius:14px;border:1px solid rgba(201,168,76,0.3)">
-            <p style="font-size:13px;color:#5a3e00;font-weight:700">🌊 มหาวิทยาลัยบูรพา บางแสน</p>
-        </div>
-    </div>
-    <div class="card" style="padding:12px 16px">
-        <button class="btn btn-ghost" style="margin-top:0" onclick="logout()">ออกจากระบบ</button>
-    </div>
-</div>
-
-<script>
-// ============================================================
-// CONFIG
-// ============================================================
-const SUPABASE_URL = 'https://qftgvzsakmyugmspgqex.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_SvxKwCNAzg9PurBHRi1LUQ_4o-hBVJJ';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ============================================================
-// SCHEDULE  (day = unique ID, offsetDays = days after study_start_date)
-// ============================================================
-const SCHEDULE = [
-    { day:0,  offsetDays:0,  label:'Pre-test',    emoji:'📋', isPretest:true,  isPosttest:false },
-    { day:1,  offsetDays:1,  label:'Quiz วันที่ 1', emoji:'📝', isPretest:false, isPosttest:false },
-    { day:3,  offsetDays:3,  label:'Quiz วันที่ 3', emoji:'📝', isPretest:false, isPosttest:false },
-    { day:7,  offsetDays:7,  label:'Quiz วันที่ 7', emoji:'📝', isPretest:false, isPosttest:false },
-    { day:30, offsetDays:14, label:'Post-test',    emoji:'🏁', isPretest:false, isPosttest:true  },
-];
-const DAY_KEY_MAP = { 0:'pre_date', 1:'day_1_date', 3:'day_3_date', 7:'day_7_date', 30:'posttest_date' };
-let cachedAdminDates = {};
-
-// ============================================================
-// GROUP
-// ============================================================
-function isControlGroup(sid) {
-    const d = String(sid).replace(/\D/g,'');
-    return d.length > 0 && parseInt(d) % 2 === 0;
-}
-
-// ============================================================
-// DEMO MODE
-// ============================================================
-const isDemoMode = new URLSearchParams(window.location.search).get('demo') === '1';
-
-// English sample questions — used when DB has no questions yet
-const DEMO_SAMPLE_QUESTIONS = [
-    {
-        id:'d1', quiz_day:1, chapters:{chapter_number:1, title:'Medical Terminology'},
-        question_text:'Which term means "inflammation of the liver"?',
-        choice_correct:'Hepatitis',
-        choice_wrong1:'Nephritis', choice_wrong2:'Gastritis', choice_wrong3:'Arthritis', choice_wrong4:'Dermatitis',
-        exp_correct:'Hepat- = liver, -itis = inflammation. Hepatitis is inflammation of the liver.',
-        exp_wrong1:'Nephr- = kidney. Nephritis is inflammation of the kidney.',
-        exp_wrong2:'Gastr- = stomach. Gastritis is inflammation of the stomach.',
-        exp_wrong3:'Arthr- = joint. Arthritis is inflammation of a joint.',
-        exp_wrong4:'Derm- = skin. Dermatitis is inflammation of the skin.'
-    },
-    {
-        id:'d2', quiz_day:1, chapters:{chapter_number:1, title:'Medical Terminology'},
-        question_text:'What does the prefix "Brady-" mean?',
-        choice_correct:'Slow',
-        choice_wrong1:'Fast', choice_wrong2:'Large', choice_wrong3:'Small', choice_wrong4:'Pain',
-        exp_correct:'Brady- means slow. Example: Bradycardia = slow heart rate.',
-        exp_wrong1:'Tachy- means fast. Example: Tachycardia = fast heart rate.',
-        exp_wrong2:'Macro- means large.',
-        exp_wrong3:'Micro- means small.',
-        exp_wrong4:'Algia/Dynia means pain.'
-    },
-    {
-        id:'d3', quiz_day:3, chapters:{chapter_number:2, title:'Cardiovascular'},
-        question_text:'A patient with "Dyspnea" is experiencing difficulty with:',
-        choice_correct:'Breathing',
-        choice_wrong1:'Swallowing', choice_wrong2:'Speaking', choice_wrong3:'Walking', choice_wrong4:'Vision',
-        exp_correct:'Dyspnea (dys- = difficult, -pnea = breathing) means shortness of breath or difficulty breathing.',
-        exp_wrong1:'Difficulty swallowing is called Dysphagia.',
-        exp_wrong2:'Difficulty speaking is called Dysphasia or Dysarthria.',
-        exp_wrong3:'Difficulty walking is called Dysbasia.',
-        exp_wrong4:'Visual difficulty is called Diplopia or Blurred vision.'
-    },
-    {
-        id:'d4', quiz_day:3, chapters:{chapter_number:2, title:'Cardiovascular'},
-        question_text:'The suffix "-ectomy" means:',
-        choice_correct:'Surgical removal',
-        choice_wrong1:'Surgical repair', choice_wrong2:'Surgical incision', choice_wrong3:'Visual examination', choice_wrong4:'Disease of',
-        exp_correct:'-ectomy means surgical removal. Example: Appendectomy = surgical removal of the appendix.',
-        exp_wrong1:'-plasty means surgical repair. Example: Rhinoplasty = surgical repair of the nose.',
-        exp_wrong2:'-otomy means surgical incision. Example: Tracheotomy = incision into the trachea.',
-        exp_wrong3:'-scopy means visual examination. Example: Endoscopy.',
-        exp_wrong4:'-pathy means disease of. Example: Neuropathy.'
-    },
-    {
-        id:'d5', quiz_day:7, chapters:{chapter_number:3, title:'Clinical Signs'},
-        question_text:'Which term describes an abnormally fast heart rate (>100 bpm)?',
-        choice_correct:'Tachycardia',
-        choice_wrong1:'Bradycardia', choice_wrong2:'Arrhythmia', choice_wrong3:'Hypertension', choice_wrong4:'Syncope',
-        exp_correct:'Tachycardia (Tachy- = fast, -cardia = heart) means a heart rate greater than 100 beats per minute.',
-        exp_wrong1:'Bradycardia (Brady- = slow) means a heart rate less than 60 bpm.',
-        exp_wrong2:'Arrhythmia means irregular heart rhythm, not necessarily fast.',
-        exp_wrong3:'Hypertension means high blood pressure, not related to heart rate.',
-        exp_wrong4:'Syncope means fainting/temporary loss of consciousness.'
-    }
-];
-
-async function startDemoQuiz() {
-    showScreen('screen-loading');
-    let questions = null;
-    try {
-        const { data: qs, error } = await sb
-            .from('questions')
-            .select('id, question_text, choice_correct, choice_wrong1, choice_wrong2, choice_wrong3, choice_wrong4, exp_correct, exp_wrong1, exp_wrong2, exp_wrong3, exp_wrong4, chapters(chapter_number, title)')
-            .in('quiz_day', [1, 3, 7])
-            .limit(60);
-        if (!error && qs?.length >= 5) {
-            questions = qs.sort(() => Math.random() - 0.5).slice(0, 5);
-        }
-    } catch(e) { /* fall through to sample */ }
-
-    quizQuestions  = questions || [...DEMO_SAMPLE_QUESTIONS].sort(() => Math.random() - 0.5);
-    currentQIndex  = 0;
-    questionResults = [];
-    currentDay     = 1;
-    isPretest      = false;
-    isPosttest     = false;
-    currentSessionId = generateUUID();
-    currentStudent = { student_id: 'DEMO', name: 'Demo', is_test_mode: true };
-
-    document.getElementById('quiz-day-badge').textContent = '🎮 Demo';
-    showScreen('screen-quiz');
-    setTimeout(showQuestion, 50);
-}
-
-// ============================================================
-// STATE
-// ============================================================
-let currentStudent    = null;
-let currentDay        = null;
-let isPretest         = false;
-let isPosttest        = false;
-let quizQuestions     = [];
-let currentQIndex     = 0;
-let questionResults   = [];
-let currentSessionId  = null;
-let actionCdInterval  = null;
-
-// ============================================================
-// UTILS
-// ============================================================
-function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    window.scrollTo({ top:0, behavior:'smooth' });
-}
-function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random()*16|0;
-        return (c==='x' ? r : (r&0x3|0x8)).toString(16);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
     });
-}
-function formatDate(date) {
-    if (!date) return '—';
-    return new Date(date).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'});
-}
-function formatDateShort(date) {
-    if (!date) return '—';
-    return new Date(date).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
-}
-async function getServerTime() {
-    try { const { data } = await sb.rpc('get_server_time'); return new Date(data); }
-    catch { return new Date(); }
-}
-async function fetchSettings() {
-    try {
-        const { data } = await sb.from('settings').select('key,value');
-        cachedAdminDates = {};
-        (data||[]).forEach(r => { if (r.value) cachedAdminDates[r.key] = new Date(r.value+'T00:00:00+07:00'); });
-    } catch(_) {}
-}
-function pretestDone() { return (currentStudent?.completed_days||[]).includes(0); }
 
-// ============================================================
-// GET NEXT SESSION
-// ============================================================
-async function getNextSession(student) {
-    const completed = student.completed_days || [];
-    const serverNow = await getServerTime();
-    await fetchSettings();
-
-    // ── Pre-test check (all groups) ──
-    const hasQuizData = completed.some(d => [1,3,7,30].includes(d));
-    if (!completed.includes(0) && !hasQuizData) {
-        const adminDate = student.is_test_mode ? null : cachedAdminDates['pre_date'];
-        if (adminDate && serverNow < adminDate) {
-            return { day:0, available:false, availableDate:adminDate, isPretest:true };
-        }
-        return { day:0, available:true, isPretest:true };
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.classList.add('show');
+      document.getElementById('login-card').classList.remove('shake');
+      void document.getElementById('login-card').offsetWidth;
+      document.getElementById('login-card').classList.add('shake');
     }
 
-    // ── Control group ──
-    if (isControlGroup(student.student_id)) {
-        if (completed.includes(30)) return { day:null, available:false, allDone:true };
-        const adminDate = student.is_test_mode ? null : cachedAdminDates['posttest_date'];
-        if (adminDate) {
-            const available = serverNow >= adminDate;
-            return { day:30, available, availableDate: available ? null : adminDate, isPosttest:true, isControl:true };
-        }
-        return { day:30, available:true, isPosttest:true, isControl:true };
-    }
+    async function doLogin() {
+      const btn = document.getElementById('login-btn');
+      const u = document.getElementById('username').value.trim();
 
-    // ── Experimental group ──
-    const start = student.study_start_date ? new Date(student.study_start_date+'T00:00:00+07:00') : null;
+      if (!u) { showError('กรุณากรอกเลขประจำตัวนิสิต'); return; }
+      if (!/^\d{5,15}$/.test(u)) { showError('เลขประจำตัวนิสิตไม่ถูกต้อง'); return; }
 
-    for (const s of SCHEDULE.filter(s => !s.isPretest)) {
-        if (completed.includes(s.day)) continue;
-        const adminDate = student.is_test_mode ? null : cachedAdminDates[DAY_KEY_MAP[s.day]];
-        if (adminDate) {
-            const available = serverNow >= adminDate;
-            return { day:s.day, available, availableDate: available ? null : adminDate, isPosttest:s.isPosttest };
-        }
-        if (!start || s.offsetDays === 0) return { day:s.day, available:true, isPosttest:s.isPosttest };
-        if (serverNow - start >= s.offsetDays * 86400000) {
-            return { day:s.day, available:true, isPosttest:s.isPosttest };
+      btn.disabled = true;
+      btn.textContent = 'กำลังตรวจสอบ…';
+
+      try {
+        // ตรวจสอบว่ามีในระบบแล้วหรือยัง
+        const checkRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(u)}&select=username`,
+          { headers: HEADERS }
+        );
+        const existing = await checkRes.json();
+
+        if (existing && existing.length > 0) {
+          // มีแล้ว → login เลย
+          localStorage.setItem('mv_current', existing[0].username);
+          location.href = 'home.html';
         } else {
-            const availDate = new Date(start);
-            availDate.setDate(availDate.getDate() + s.offsetDays);
-            return { day:s.day, available:false, availableDate:availDate, isPosttest:s.isPosttest };
-        }
-    }
-    return { day:null, available:false, allDone:true };
-}
-
-// ============================================================
-// LOGIN
-// ============================================================
-async function handleLogin() {
-    const sid   = document.getElementById('input-student-id').value.trim();
-    const errEl = document.getElementById('login-error');
-    errEl.textContent = '';
-    if (!sid || sid.length < 4) { errEl.textContent = 'กรุณากรอกรหัสนิสิต'; return; }
-
-    document.getElementById('btn-login').disabled = true;
-    showScreen('screen-loading');
-
-    try {
-        const { data: student, error } = await sb.from('students').select('*').eq('student_id', sid).maybeSingle();
-        if (error) throw error;
-        if (!student) {
-            showScreen('screen-login');
-            errEl.textContent = 'ไม่พบรหัสนิสิตในระบบ กรุณาติดต่ออาจารย์';
-            document.getElementById('btn-login').disabled = false;
-            return;
-        }
-
-        await sb.from('students').update({ last_active: new Date().toISOString().split('T')[0] }).eq('student_id', sid);
-        currentStudent = student;
-
-        // ── Route ──
-        if (!student.consent_given) {
-            showScreen('screen-consent');
-            return;
-        }
-        if (!pretestDone()) {
-            currentDay = 0; isPretest = true; isPosttest = false;
-            await startQuiz();
-            return;
-        }
-
-        const session = await getNextSession(student);
-        if (session.allDone) { showScreen('screen-done'); return; }
-        showHomeScreen(session);
-
-    } catch(err) {
-        console.error(err);
-        showScreen('screen-login');
-        document.getElementById('login-error').textContent = 'เกิดข้อผิดพลาด: ' + err.message;
-        document.getElementById('btn-login').disabled = false;
-    }
-}
-
-function logout() {
-    currentStudent = null; currentDay = null; isPretest = false; isPosttest = false;
-    if (actionCdInterval) { clearInterval(actionCdInterval); actionCdInterval = null; }
-    document.getElementById('input-student-id').value = '';
-    document.getElementById('btn-login').disabled = false;
-    document.getElementById('login-error').textContent = '';
-    showScreen('screen-login');
-}
-
-// ============================================================
-// CONSENT
-// ============================================================
-function showConsentScreen() { showScreen('screen-consent'); }
-
-async function giveConsent() {
-    const btn = document.querySelector('#screen-consent .btn-primary');
-    if (btn) btn.disabled = true;
-    try {
-        await sb.from('students').update({ consent_given: true }).eq('student_id', currentStudent.student_id);
-        currentStudent.consent_given = true;
-        currentDay = 0; isPretest = true; isPosttest = false;
-        await startQuiz();
-    } catch(err) {
-        alert('เกิดข้อผิดพลาด: ' + err.message);
-        if (btn) btn.disabled = false;
-    }
-}
-
-// ============================================================
-// HOME SCREEN
-// ============================================================
-function showHomeScreen(session) {
-    currentDay  = session?.day  ?? null;
-    isPosttest  = session?.isPosttest ?? false;
-    isPretest   = session?.isPretest  ?? false;
-
-    // Greeting
-    const isCtrl = isControlGroup(currentStudent.student_id);
-    document.getElementById('home-student-id').textContent = currentStudent.student_id;
-    document.getElementById('home-group-badge').innerHTML = isCtrl
-        ? `<div class="home-group-tag home-group-ctrl">กลุ่มควบคุม<br>🔬 Control</div>`
-        : `<div class="home-group-tag home-group-exp">กลุ่มทดลอง<br>🧪 Experimental</div>`;
-
-    renderTimeline();
-    renderActionCard(session);
-    showScreen('screen-home');
-}
-
-// ============================================================
-// TIMELINE
-// ============================================================
-function renderTimeline() {
-    const completed = currentStudent.completed_days || [];
-    const scores    = currentStudent.scores || {};
-    const now       = new Date();
-    const isCtrl    = isControlGroup(currentStudent.student_id);
-    const container = document.getElementById('home-timeline');
-
-    const html = SCHEDULE.map((s, i) => {
-        // Resolve date
-        const adminDate = currentStudent.is_test_mode ? null : cachedAdminDates[DAY_KEY_MAP[s.day]];
-        const start = currentStudent.study_start_date ? new Date(currentStudent.study_start_date+'T00:00:00+07:00') : null;
-        let availDate = adminDate;
-        if (!availDate && start && s.offsetDays > 0) {
-            availDate = new Date(start);
-            availDate.setDate(availDate.getDate() + s.offsetDays);
-        }
-
-        const isDone  = completed.includes(s.day);
-        const isSkip  = isCtrl && !s.isPretest && !s.isPosttest;
-        const isActive= !isDone && !isSkip && (!availDate || now >= availDate);
-        const isLocked= !isDone && !isSkip && !!availDate && now < availDate;
-
-        // Dot
-        let dotCls, dotTxt;
-        if      (isDone)   { dotCls='dot-done';   dotTxt='✓'; }
-        else if (isSkip)   { dotCls='dot-skip';   dotTxt='—'; }
-        else if (isActive) { dotCls='dot-active'; dotTxt=s.emoji; }
-        else if (isLocked) { dotCls='dot-locked'; dotTxt='🔒'; }
-        else               { dotCls='dot-future'; dotTxt=s.emoji; }
-
-        // Score badge
-        let scoreHtml = '';
-        if (isDone && scores[s.day] != null) {
-            const total = (s.isPretest || s.isPosttest) ? 15 : 5;
-            scoreHtml = `<span class="tl-score">${scores[s.day]}/${total}</span>`;
-        }
-
-        // Meta tag
-        let metaHtml;
-        if (isDone)   metaHtml = `<span class="tl-tag tl-tag-done">เสร็จแล้ว ✓</span>`;
-        else if (isSkip)   metaHtml = `<span class="tl-tag tl-tag-skip">ไม่มีในกลุ่มนี้</span>`;
-        else if (isActive) metaHtml = `<span class="tl-tag tl-tag-active">พร้อมทำแล้ว ▶</span>`;
-        else if (isLocked) metaHtml = `<span class="tl-tag tl-tag-locked">เปิด ${formatDateShort(availDate)}</span>`;
-        else               metaHtml = `<span style="font-size:11px;color:var(--text3)">รอกำหนดวัน</span>`;
-
-        // Connector line
-        const isLast  = i === SCHEDULE.length - 1;
-        const lineCls = isDone ? 'done' : '';
-        const connector = isLast ? '' : `<div class="tl-line ${lineCls}"></div>`;
-
-        return `
-        <div class="tl-step">
-            <div class="tl-dot-col">
-                <div class="tl-dot ${dotCls}">${dotTxt}</div>
-                ${connector}
-            </div>
-            <div class="tl-body">
-                <div class="tl-name">${s.label}${scoreHtml}</div>
-                <div class="tl-meta">${metaHtml}</div>
-            </div>
-        </div>`;
-    }).join('');
-
-    container.innerHTML = html;
-}
-
-// ============================================================
-// ACTION CARD
-// ============================================================
-function renderActionCard(session) {
-    if (actionCdInterval) { clearInterval(actionCdInterval); actionCdInterval = null; }
-    const el = document.getElementById('home-action-card');
-
-    // All done
-    if (!session || session.allDone) {
-        el.innerHTML = `
-        <div style="text-align:center;padding:6px 0">
-            <div class="action-icon-big">🎓</div>
-            <div class="action-title">ทำครบทุกรอบแล้ว!</div>
-            <p class="action-sub" style="margin-top:6px">ขอบคุณที่เข้าร่วมการวิจัย<br>มหาวิทยาลัยบูรพาขอชื่นชมความตั้งใจ 🙏</p>
-        </div>`;
-        return;
-    }
-
-    // Locked — show countdown
-    if (!session.available) {
-        const sched = SCHEDULE.find(s => s.day === session.day);
-        el.innerHTML = `
-        <div style="text-align:center">
-            <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">
-                ครั้งถัดไป: ${sched?.label||''}
-            </div>
-            <div class="action-cdvalue" id="action-cd">—</div>
-            <div class="action-cddate" id="action-cddate">เปิดวันที่ ${formatDate(session.availableDate)}</div>
-        </div>`;
-
-        function updateCd() {
-            const diff = session.availableDate - new Date();
-            if (diff <= 0) {
-                clearInterval(actionCdInterval);
-                el.innerHTML += `<p style="text-align:center;color:var(--success);font-weight:700;margin-top:10px">เปิดแล้ว! 🎉 กรุณา Refresh</p>`;
-                return;
+          // ยังไม่มี → สร้าง user ใหม่อัตโนมัติ
+          btn.textContent = 'กำลังลงทะเบียน…';
+          const createRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/users`,
+            {
+              method: 'POST',
+              headers: { ...HEADERS, 'Prefer': 'return=representation' },
+              body: JSON.stringify({
+                username: u,
+                password: u,          // ไม่ใช้งาน แต่ schema ต้องการ
+                registered_at: new Date().toISOString()
+              })
             }
-            const h = Math.floor(diff/3600000);
-            const m = Math.floor((diff%3600000)/60000);
-            const s = Math.floor((diff%60000)/1000);
-            const el2 = document.getElementById('action-cd');
-            if (el2) el2.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+          );
+          if (createRes.ok) {
+            localStorage.setItem('mv_current', u);
+            location.href = 'home.html';
+          } else {
+            const err = await createRes.json();
+            showError('ไม่สามารถสร้างบัญชีได้: ' + (err.message || createRes.status));
+            btn.disabled = false;
+            btn.textContent = 'เข้าสู่ระบบ';
+          }
         }
-        updateCd();
-        actionCdInterval = setInterval(updateCd, 1000);
-        return;
+      } catch (err) {
+        showError('เกิดข้อผิดพลาด กรุณาลองใหม่');
+        btn.disabled = false;
+        btn.textContent = 'เข้าสู่ระบบ';
+      }
     }
-
-    // Available — show start button
-    let icon, title, sub, btnHtml;
-    if (session.isPretest) {
-        icon = '📋'; title = 'พร้อมทำ Pre-test แล้ว!'; sub = '15 ข้อ — วัดความรู้ก่อนเรียน';
-        btnHtml = `<button class="btn btn-primary" onclick="startCurrentSession()">📋 เริ่ม Pre-test →</button>`;
-    } else if (session.isPosttest) {
-        icon = '🏁'; title = 'พร้อมทำ Post-test แล้ว!'; sub = '15 ข้อ — วัดความรู้หลังเรียน';
-        btnHtml = `<button class="btn btn-gold" onclick="startCurrentSession()">🏁 เริ่ม Post-test →</button>`;
-    } else {
-        const sched = SCHEDULE.find(s => s.day === session.day);
-        icon = '📝'; title = `พร้อมทำ ${sched?.label||'Quiz'} แล้ว!`; sub = '5 ข้อ — ทบทวนคำศัพท์';
-        btnHtml = `<button class="btn btn-primary" onclick="startCurrentSession()">📝 เริ่ม Quiz →</button>`;
-    }
-
-    el.innerHTML = `
-    <div style="text-align:center;margin-bottom:16px">
-        <div class="action-icon-big">${icon}</div>
-        <div class="action-title">${title}</div>
-        <p class="action-sub">${sub}</p>
-    </div>
-    ${btnHtml}`;
-}
-
-async function startCurrentSession() {
-    await startQuiz();
-}
-
-async function goHome() {
-    const session = await getNextSession(currentStudent);
-    if (session.allDone) { showScreen('screen-done'); return; }
-    showHomeScreen(session);
-}
-
-// ============================================================
-// START QUIZ
-// ============================================================
-async function startQuiz() {
-    showScreen('screen-loading');
-
-    try {
-        let questions = [];
-
-        // Clean up any incomplete session logs for this day
-        await sb.from('session_logs')
-            .delete()
-            .eq('student_id', currentStudent.student_id)
-            .eq('session_day', currentDay);
-
-        if (isPretest) {
-            // Pre-test: all questions, ordered by chapter
-            const { data } = await sb.from('questions')
-                .select('*, chapters(title, chapter_number)')
-                .in('quiz_day', [1,3,7])
-                .order('order_num', { ascending:true, nullsFirst:false });
-            questions = data || [];
-            // Fallback ordering
-            if (!questions.length) {
-                const { data: d2 } = await sb.from('questions')
-                    .select('*, chapters(title, chapter_number)')
-                    .in('quiz_day', [1,3,7]);
-                questions = (d2||[]).sort((a,b) => (a.chapters?.chapter_number||0) - (b.chapters?.chapter_number||0));
-            }
-        } else if (isPosttest) {
-            // Post-test: all questions, shuffled
-            const { data } = await sb.from('questions')
-                .select('*, chapters(title, chapter_number)')
-                .in('quiz_day', [1,3,7]);
-            questions = (data||[]).sort(() => Math.random()-0.5);
-        } else {
-            // Daily quiz
-            const { data } = await sb.from('questions')
-                .select('*, chapters(title, chapter_number)')
-                .eq('quiz_day', currentDay)
-                .order('order_num', { ascending:true, nullsFirst:false });
-            questions = data || [];
-        }
-
-        if (!questions.length) {
-            alert('ยังไม่มีโจทย์สำหรับรอบนี้ กรุณาติดต่ออาจารย์');
-            if (pretestDone()) goHome(); else showScreen('screen-login');
-            return;
-        }
-
-        quizQuestions   = questions;
-        currentQIndex   = 0;
-        questionResults = [];
-        currentSessionId = generateUUID();
-
-        // Set study_start_date after pre-test is done (or on day 1 as fallback)
-        if ((isPretest || currentDay === 1) && !currentStudent.study_start_date) {
-            const today = new Date().toISOString().split('T')[0];
-            await sb.from('students').update({ study_start_date: today }).eq('student_id', currentStudent.student_id);
-            currentStudent.study_start_date = today;
-        }
-
-        // Badge
-        const badge  = document.getElementById('quiz-day-badge');
-        const isCtrl = isControlGroup(currentStudent.student_id);
-        if (isPretest) {
-            badge.innerHTML = `<span class="day-badge pretest">📋 Pre-test</span>`;
-        } else if (isPosttest) {
-            badge.innerHTML = `<span class="day-badge posttest">🏁 Post-test${isCtrl?' · กลุ่มควบคุม':' · กลุ่มทดลอง'}</span>`;
-        } else {
-            badge.innerHTML = `<span class="day-badge normal">📝 วันที่ ${currentDay} · กลุ่มทดลอง</span>`;
-        }
-
-        showScreen('screen-quiz');
-        showQuestion();
-
-    } catch(err) {
-        console.error(err);
-        alert('เกิดข้อผิดพลาด: ' + err.message);
-        showScreen('screen-login');
-    }
-}
-
-// ============================================================
-// QUESTION
-// ============================================================
-function showQuestion() {
-    const q     = quizQuestions[currentQIndex];
-    const total = quizQuestions.length;
-
-    document.getElementById('q-counter').textContent     = `ข้อ ${currentQIndex+1} / ${total}`;
-    document.getElementById('progress-fill').style.width = `${(currentQIndex/total)*100}%`;
-    document.getElementById('q-chapter').textContent     = q.chapters?.title || '—';
-    document.getElementById('q-text').textContent        = q.question_text;
-
-    document.getElementById('feedback').className = 'feedback';
-    document.getElementById('btn-explain').style.display = 'none';
-
-    const choices = [
-        { text:q.choice_correct, isCorrect:true,  exp:q.exp_correct },
-        { text:q.choice_wrong1,  isCorrect:false, exp:q.exp_wrong1  },
-        { text:q.choice_wrong2,  isCorrect:false, exp:q.exp_wrong2  },
-        { text:q.choice_wrong3,  isCorrect:false, exp:q.exp_wrong3  },
-        { text:q.choice_wrong4,  isCorrect:false, exp:q.exp_wrong4  },
-    ].sort(() => Math.random()-0.5);
-
-    quizQuestions[currentQIndex]._shuffledChoices = choices;
-
-    const container = document.getElementById('choices-container');
-    container.innerHTML = '';
-    choices.forEach(c => {
-        const btn = document.createElement('button');
-        btn.className   = 'choice-btn';
-        btn.textContent = c.text;
-        btn.dataset.value = c.text;
-        btn.onclick = () => handleAnswer(c, btn);
-        container.appendChild(btn);
-    });
-
-    startThinkAnim();
-}
-
-function startThinkAnim() {
-    const el = document.getElementById('think-anim');
-    if (el) el.classList.remove('answered');
-}
-function stopThinkAnim() {
-    const el = document.getElementById('think-anim');
-    if (el) el.classList.add('answered');
-}
-
-// ============================================================
-// HANDLE ANSWER
-// ============================================================
-function handleAnswer(choice, clickedBtn) {
-    stopThinkAnim();
-    const isCorrect = choice.isCorrect;
-    questionResults.push({ q: quizQuestions[currentQIndex], isCorrect });
-    saveAnswerNow(quizQuestions[currentQIndex], choice.text, isCorrect);
-
-    document.querySelectorAll('.choice-btn').forEach(btn => {
-        btn.disabled = true;
-        const text = btn.dataset.value;
-        if (text === quizQuestions[currentQIndex].choice_correct) btn.classList.add('correct');
-        else btn.classList.add('neutral');
-    });
-    if (!isCorrect) { clickedBtn.classList.remove('neutral'); clickedBtn.classList.add('incorrect'); }
-
-    const fb = document.getElementById('feedback');
-    fb.className   = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
-    fb.textContent = isCorrect ? '✅ ถูกต้อง!' : '❌ ผิด — ดูเฉลยด้านล่าง';
-
-    document.getElementById('btn-explain').style.display = 'block';
-}
-
-// ============================================================
-// EXPLANATION
-// ============================================================
-function showExplainScreen() {
-    const q        = quizQuestions[currentQIndex];
-    const choices  = q._shuffledChoices || [];
-    const isCorr   = questionResults[questionResults.length-1]?.isCorrect;
-    const isLast   = currentQIndex+1 >= quizQuestions.length;
-
-    // Verdict card
-    document.getElementById('explain-verdict').textContent      = isCorr ? '✅' : '❌';
-    document.getElementById('explain-verdict-text').textContent = isCorr ? 'ถูกต้อง!' : 'ผิด';
-    document.getElementById('explain-correct-word').textContent = isCorr ? '' : `คำตอบที่ถูก: ${q.choice_correct}`;
-    document.getElementById('explain-result-card').style.background = isCorr
-        ? 'linear-gradient(135deg,#e8f5e9,#f1f8e9)' : 'linear-gradient(135deg,#ffebee,#fce4ec)';
-
-    // Choices — correct first
-    const sorted = [...choices].sort((a,b) => (b.isCorrect?1:0)-(a.isCorrect?1:0));
-    document.getElementById('explain-choices-list').innerHTML = sorted.map(c => `
-        <div class="exp-item ${c.isCorrect?'correct':'wrong'}">
-            <div class="exp-answer">${c.isCorrect?'✅':'❌'} ${c.text}</div>
-            <div class="exp-desc">${c.exp || '—'}</div>
-        </div>`).join('');
-
-    // Next button label
-    const nextBtn = document.getElementById('btn-next-from-explain');
-    if (isLast) {
-        nextBtn.textContent = isPretest ? 'ดูผล Pre-test 🏁' : isPosttest ? 'ดูผล Post-test 🏁' : 'ดูผลลัพธ์ 🏁';
-    } else {
-        nextBtn.textContent = 'ข้อต่อไป →';
-    }
-
-    showScreen('screen-explain');
-}
-
-function goToNext() {
-    currentQIndex++;
-    if (currentQIndex < quizQuestions.length) {
-        showScreen('screen-quiz');
-        showQuestion();
-    } else {
-        finishSession();
-    }
-}
-
-// ============================================================
-// SAVE ANSWER
-// ============================================================
-async function saveAnswerNow(q, chosenAnswer, isCorrect) {
-    if (isDemoMode) return; // Demo: skip DB write
-    const { error } = await sb.from('session_logs').insert({
-        student_id:    currentStudent.student_id,
-        session_id:    currentSessionId,
-        question_id:   q.id,
-        session_day:   currentDay,
-        is_posttest:   isPosttest,
-        chosen_answer: chosenAnswer,
-        is_correct:    isCorrect,
-        response_ms:   0,
-        answered_at:   new Date().toISOString()
-    });
-    if (error) {
-        console.error('Save error:', error);
-        alert('⚠️ บันทึกคำตอบไม่สำเร็จ: ' + error.message + '\n\nกรุณาแจ้งอาจารย์');
-    }
-}
-
-// ============================================================
-// FINISH SESSION
-// ============================================================
-async function finishSession() {
-    showScreen('screen-loading');
-
-    // Demo mode: skip DB save, show result immediately
-    if (isDemoMode) {
-        showResultScreen(questionResults.filter(r => r.isCorrect).length);
-        return;
-    }
-
-    try {
-        const correctCount = questionResults.filter(r => r.isCorrect).length;
-
-        const completed = [...(currentStudent.completed_days||[])];
-        if (!completed.includes(currentDay)) completed.push(currentDay);
-
-        // Update scores JSONB: { 0:12, 1:4, 3:5, 7:3, 30:14 }
-        const scores = { ...(currentStudent.scores||{}), [currentDay]: correctCount };
-
-        const update = { completed_days:completed, scores };
-
-        // Set study_start_date after pre-test
-        if (isPretest && !currentStudent.study_start_date) {
-            update.study_start_date = new Date().toISOString().split('T')[0];
-        }
-
-        await sb.from('students').update(update).eq('student_id', currentStudent.student_id);
-        currentStudent.completed_days = completed;
-        currentStudent.scores = scores;
-        if (update.study_start_date) currentStudent.study_start_date = update.study_start_date;
-
-        showResultScreen(correctCount);
-    } catch(err) {
-        console.error(err);
-        showResultScreen(questionResults.filter(r=>r.isCorrect).length);
-    }
-}
-
-// ============================================================
-// RESULT SCREEN
-// ============================================================
-function animateCount(el, from, to, suffix, duration) {
-    duration = duration||700; suffix = suffix||'';
-    const start = performance.now();
-    const tick = now => {
-        const t    = Math.min((now-start)/duration, 1);
-        const ease = 1 - Math.pow(1-t, 3);
-        el.textContent = Math.round(from+(to-from)*ease) + suffix;
-        if (t < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-}
-
-async function showResultScreen(correctCount) {
-    const total    = questionResults.length;
-    const accuracy = Math.round((correctCount/total)*100);
-
-    const dayLabel = isPretest ? 'ผล Pre-test 📋' : isPosttest ? 'ผล Post-test 🏁' : `ผลวันที่ ${currentDay} 📝`;
-    document.getElementById('result-day-label').textContent = dayLabel;
-    document.getElementById('result-sub').textContent = accuracy >= 80 ? '🌟 ยอดเยี่ยม!' : accuracy >= 60 ? '👍 ทำได้ดี!' : '📚 ทบทวนอีกครั้งนะ';
-
-    const scoreEl = document.getElementById('result-score');
-    scoreEl.classList.remove('result-pop'); void scoreEl.offsetWidth; scoreEl.classList.add('result-pop');
-    scoreEl.textContent = `0/${total}`;
-    setTimeout(() => animateCount(scoreEl, 0, correctCount, '/'+total, 900), 120);
-
-    const cEl = document.getElementById('r-correct');
-    const wEl = document.getElementById('r-wrong');
-    const pEl = document.getElementById('r-pct');
-    cEl.closest('.stat-box').style.animation = 'statPop 0.5s 0.30s cubic-bezier(0.34,1.56,0.64,1) both';
-    wEl.closest('.stat-box').style.animation = 'statPop 0.5s 0.45s cubic-bezier(0.34,1.56,0.64,1) both';
-    pEl.closest('.stat-box').style.animation = 'statPop 0.5s 0.60s cubic-bezier(0.34,1.56,0.64,1) both';
-    setTimeout(() => animateCount(cEl, 0, correctCount,         '', 600), 300);
-    setTimeout(() => animateCount(wEl, 0, total-correctCount,   '', 600), 450);
-    setTimeout(() => { pEl.textContent = accuracy+'%'; }, 600);
-
-    // Result list
-    const list = document.getElementById('result-list');
-    list.innerHTML = '';
-    questionResults.forEach((r, i) => {
-        const item = document.createElement('div');
-        item.className = 'result-item';
-        item.style.animation = `listFadeUp 0.4s ${0.06*i}s cubic-bezier(0.34,1.56,0.64,1) both`;
-        item.innerHTML = `
-            <span>${r.isCorrect?'✅':'❌'}</span>
-            <span class="word-text">${r.q.question_text.substring(0,45)}${r.q.question_text.length>45?'…':''}</span>
-            <span style="font-size:12px;color:var(--text3);font-weight:600">${r.isCorrect?'ถูก':'ผิด'}</span>`;
-        list.appendChild(item);
-    });
-
-    // Demo mode: show CTA instead of next-session info
-    const nextCard = document.getElementById('next-session-card');
-    const btnsCard = nextCard.nextElementSibling;
-    if (isDemoMode) {
-        nextCard.innerHTML = `
-            <div style="text-align:center;padding:6px 0">
-                <p style="font-size:14px;font-weight:800;color:var(--primary);margin-bottom:10px">🎓 สนใจเข้าร่วมการวิจัย?</p>
-                <p style="font-size:13px;line-height:1.6;color:var(--text2)">ติดต่อได้ที่บูทของเรา<br>คณะแพทยศาสตร์ มหาวิทยาลัยบูรพา</p>
-                <button class="btn btn-primary" style="margin-top:14px" onclick="showScreen('screen-demo')">🔄 ลองเล่นอีกครั้ง</button>
-                <button class="btn btn-ghost" style="margin-top:8px" onclick="window.location.href='present.html'">← กลับหน้าหลัก</button>
-            </div>`;
-        if (btnsCard) btnsCard.style.display = 'none';
-    } else {
-        const nextSession = await getNextSession(currentStudent);
-        const infoEl = document.getElementById('next-session-info');
-        if (infoEl) {
-            if (isPretest) {
-                const isCtrl = isControlGroup(currentStudent.student_id);
-                infoEl.textContent = isCtrl
-                    ? '⏭️ กลุ่มควบคุม — รอทำ Post-test'
-                    : '⏭️ ต่อไป: Quiz วันที่ 1 — เตรียมตัวได้เลย!';
-            } else if (nextSession.allDone) {
-                infoEl.textContent = '🎓 ทำครบทุกรอบแล้ว! ขอบคุณที่ร่วมวิจัย';
-            } else if (!nextSession.available) {
-                const sched = SCHEDULE.find(s => s.day === nextSession.day);
-                const d = cachedAdminDates[DAY_KEY_MAP[nextSession.day]] || nextSession.availableDate;
-                infoEl.textContent = `⏭️ ครั้งถัดไป: ${sched?.label} — ${formatDate(d)}`;
-            } else {
-                infoEl.textContent = '⏭️ ครั้งถัดไปพร้อมแล้ว!';
-            }
-        }
-        if (btnsCard) btnsCard.style.display = '';
-    }
-
-    showScreen('screen-result');
-}
-
-// ============================================================
-// KEY EVENTS
-// ============================================================
-document.getElementById('input-student-id').addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleLogin();
-});
-
-// ============================================================
-// DEMO MODE INIT
-// ============================================================
-if (isDemoMode) {
-    showScreen('screen-demo');
-}
-
-// ============================================================
-// THEME TOGGLE
-// ============================================================
-(function() {
-    const saved = localStorage.getItem('mvTheme') || 'light';
-    document.documentElement.setAttribute('data-theme', saved);
-    const btn = document.createElement('button');
-    btn.className = 'theme-toggle';
-    btn.title = 'เปลี่ยน Light/Dark mode';
-    btn.textContent = saved === 'dark' ? '☀️' : '🌙';
-    btn.onclick = () => {
-        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('mvTheme', next);
-        btn.textContent = next === 'dark' ? '☀️' : '🌙';
-    };
-    document.body.appendChild(btn);
-})();
-</script>
+  </script>
 </body>
 </html>
